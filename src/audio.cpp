@@ -9,7 +9,21 @@
 #include <stdio.h>
 #include <iostream>
 #include <string>
-#include <io.h>
+#ifdef _WIN32
+    #include <io.h>
+#elif __linux__
+    #include <inttypes.h>
+    #include <unistd.h>
+    #define __int64 int64_t
+    #define _close close
+    #define _read read
+    #define _lseek64 lseek64
+    #define _O_RDONLY O_RDONLY
+    #define _open open
+    #define _lseeki64 lseek64
+    #define _lseek lseek
+    #define stricmp strcasecmp
+#endif
 #include <unistd.h>
 
 #include "audio.h"
@@ -19,12 +33,12 @@ using namespace std;
 
 int audio_init(int sampling_rate, const std::string device_name)
 {
-    string dev_name = !device_name.empty() ? device_name : "/dev/dsp";
+    string dev_name = !device_name.empty() ? device_name : "/usr/bin/aplay";
 
     int fd = open( dev_name.c_str(), O_WRONLY );
     if ( fd < 0)
     {
-        printf( "Failed to open device %s", dev_name.c_str() );
+        printf( "Failed to open device %s\n", dev_name.c_str() );
         return -1;
     }
 

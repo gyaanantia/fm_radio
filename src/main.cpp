@@ -3,7 +3,21 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <fcntl.h>
-#include <io.h>
+#ifdef _WIN32
+    #include <io.h>
+#elif __linux__
+    #include <inttypes.h>
+    #include <unistd.h>
+    #define __int64 int64_t
+    #define _close close
+    #define _read read
+    #define _lseek64 lseek64
+    #define _O_RDONLY O_RDONLY
+    #define _open open
+    #define _lseeki64 lseek64
+    #define _lseek lseek
+    #define stricmp strcasecmp
+#endif
 #include <unistd.h>
 
 #include "fm_radio.h"
