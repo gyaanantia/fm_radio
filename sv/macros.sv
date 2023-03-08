@@ -19,7 +19,7 @@ function int QUANTIZE_I
     end
 endfunction
 
-function int DEQUANTIZE_I
+function int DEQUANTIZE
     (input int i);
     begin
         return int'(i / QUANT_VAL);
