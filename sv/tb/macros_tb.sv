@@ -1,11 +1,11 @@
 module macros_tb;
 
-`include "../macros.sv"
-
+import macros::*;
 
 initial begin
-    $display(macros::QUANTIZE_I(128));
-    $display(macros::QUANTIZE_F(128.0));
+    $display(QUANTIZE_I(128));
+    $display(QUANTIZE_F(128.0));
+    $display(DEQUANTIZE_I(131072));
 end
 
 endmodule
