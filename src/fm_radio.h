@@ -3,6 +3,8 @@
 #define __FM_RADIO_H__
 
 #include <math.h>
+#include <fstream>
+#include <iostream>
 
 #define _VC_
 
@@ -29,39 +31,39 @@
 #define TAU             0.000075f
 #define W_PP            0.21140067f //tan( 1.0f / ((float)AUDIO_RATE*2.0f*TAU) )
 
-void fm_radio_stereo( unsigned char *IQ, int *left_audio, int *right_audio );
+void fm_radio_stereo( unsigned char *IQ, int *left_audio, int *right_audio, std::ofstream& read_iq_data, std::ofstream& fir_complx_n_data, std::ofstream& demodulate_n_data, std::ofstream& l_plus_r_lowpass_data, std::ofstream& l_minus_r_bandpass_data, std::ofstream& pilot_bandpass_data, std::ofstream& pilot_squared_data, std::ofstream& highpass_data, std::ofstream& demod_l_minus_r_data, std::ofstream& l_minus_r_lowpass_data, std::ofstream& left_channel_data, std::ofstream& right_channel_data, std::ofstream& left_deemph_data, std::ofstream& right_deemph_data, std::ofstream& left_volume_data, std::ofstream& right_volume_data);
 
-void read_IQ( unsigned char *IQ, int *I, int *Q, int samples );
+void read_IQ( unsigned char *IQ, int *I, int *Q, int samples, std::ofstream& read_iq_data );
 
-void demodulate_n( int *real, int *imag, int *real_prev, int *imag_prev, const int n_samples, const int gain, int *demod_out );
+void demodulate_n( int *real, int *imag, int *real_prev, int *imag_prev, const int n_samples, const int gain, int *demod_out, std::ofstream& demodulate_n_data );
 
-void demodulate( int real, int imag, int *real_prev, int *imag_prev, const int gain, int *demod_out );
+void demodulate( int real, int imag, int *real_prev, int *imag_prev, const int gain, int *demod_out, std::ofstream& demodstream );
 
-void deemphasis_n( int *input, int *x, int *y, const int n_samples, int *output );
+void deemphasis_n( int *input, int *x, int *y, const int n_samples, int *output, std::ofstream& deepmhstream );
 
-void iir_n( int *x_in, const int n_samples, const int *x_coeffs, const int *y_coeffs, int *x, int *y, const int taps, int decimation, int *y_out );
+void iir_n( int *x_in, const int n_samples, const int *x_coeffs, const int *y_coeffs, int *x, int *y, const int taps, int decimation, int *y_out, std::ofstream& iirstream );
 
-void iir( int *x_in, const int *x_coeffs, const int *y_coeffs, int *x, int *y, const int taps, const int decimation, int *y_out );
+void iir( int *x_in, const int *x_coeffs, const int *y_coeffs, int *x, int *y, const int taps, const int decimation, int *y_out, std::ofstream& iirstream );
 
-void fir_n( int *x_in, const int n_samples, const int *coeff, int *x, const int taps, const int decimation, int *y_out ); 
+void fir_n( int *x_in, const int n_samples, const int *coeff, int *x, const int taps, const int decimation, int *y_out, std::ofstream& filterstream ); 
 
-void fir( int *x_in, const int *coeff, int *x, const int taps, const int decimation, int *y_out ); 
+void fir( int *x_in, const int *coeff, int *x, const int taps, const int decimation, int *y_out, std::ofstream& filterstream ); 
 
 void fir_cmplx_n( int *x_real_in, int *x_imag_in, const int n_samples, const int *h_real, const int *h_imag, int *x_real, int *x_imag,  
-                  const int taps, const int decimation, int *y_real_out, int *y_imag_out );
+                  const int taps, const int decimation, int *y_real_out, int *y_imag_out, std::ofstream& fir_complx_n_data );
 
 void fir_cmplx( int *x_real_in, int *x_imag_in, const int *h_real, const int *h_imag, int *x_real, int *x_imag, 
-                const int taps, const int decimation, int *y_real_out, int *y_imag_out );
+                const int taps, const int decimation, int *y_real_out, int *y_imag_out, std::ofstream& fir_complx_n_data );
 
-void gain_n( int *input, const int n_samples, int gain, int *output );
+void gain_n( int *input, const int n_samples, int gain, int *output, std::ofstream& gainstream );
 
 int qarctan(int y, int x);
 
-void multiply_n( int *x_in, int *y_in, const int n_samples, int *output );
+void multiply_n( int *x_in, int *y_in, const int n_samples, int *output, std::ofstream& tonestream );
 
-void add_n( int *x_in, int *y_in, const int n_samples, int *output );
+void add_n( int *x_in, int *y_in, const int n_samples, int *output, std::ofstream& left_channel_data );
 
-void sub_n( int *x_in, int *y_in, const int n_samples, int *output );
+void sub_n( int *x_in, int *y_in, const int n_samples, int *output, std::ofstream& right_channel_data );
 
 
 // Deemphasis IIR Filter Coefficients: 

@@ -4,11 +4,12 @@
 #include <stdlib.h>
 #include <math.h>
 
+
 #include "fm_radio.h"
 
+using namespace std;
 
-
-void fm_radio_stereo(unsigned char *IQ, int *left_audio, int *right_audio)
+void fm_radio_stereo( unsigned char *IQ, int *left_audio, int *right_audio, std::ofstream& read_iq_data, std::ofstream& fir_complx_n_data, std::ofstream& demodulate_n_data, std::ofstream& l_plus_r_lowpass_data, std::ofstream& l_minus_r_bandpass_data, std::ofstream& pilot_bandpass_data, std::ofstream& pilot_squared_data, std::ofstream& highpass_data, std::ofstream& demod_l_minus_r_data, std::ofstream& l_minus_r_lowpass_data, std::ofstream& left_channel_data, std::ofstream& right_channel_data, std::ofstream& left_deemph_data, std::ofstream& right_deemph_data, std::ofstream& left_volume_data, std::ofstream& right_volume_data)
 {
     // static input/output arrays
     static int I[SAMPLES];
@@ -53,77 +54,87 @@ void fm_radio_stereo(unsigned char *IQ, int *left_audio, int *right_audio)
     //    (2) Compute the instantaneous frequency of the baseband signal.
 
     // read the I/Q data from the buffer
-    read_IQ( IQ, I, Q, SAMPLES );
-
+    read_IQ( IQ, I, Q, SAMPLES, read_iq_data );
+    
     // Channel low-pass filter cuts off all frequnties above 80 Khz
-    fir_cmplx_n( I, Q, SAMPLES, CHANNEL_COEFFS_REAL, CHANNEL_COEFFS_IMAG, fir_cmplx_x_real, fir_cmplx_x_imag, CHANNEL_COEFF_TAPS, 1, I_fir, Q_fir ); 
+    fir_cmplx_n( I, Q, SAMPLES, CHANNEL_COEFFS_REAL, CHANNEL_COEFFS_IMAG, fir_cmplx_x_real, fir_cmplx_x_imag, CHANNEL_COEFF_TAPS, 1, I_fir, Q_fir, fir_complx_n_data ); 
 
     // demodulate
-    demodulate_n( I_fir, Q_fir, demod_real, demod_imag, SAMPLES, FM_DEMOD_GAIN, demod );
+    demodulate_n( I_fir, Q_fir, demod_real, demod_imag, SAMPLES, FM_DEMOD_GAIN, demod, demodulate_n_data );
 
     // L+R low-pass FIR filter - reduce sampling rate from 256 KHz to 32 KHz
-    fir_n( demod, SAMPLES, AUDIO_LPR_COEFFS, fir_lpr_x, AUDIO_LPR_COEFF_TAPS, AUDIO_DECIM, audio_lpr_filter ); 
+    fir_n( demod, SAMPLES, AUDIO_LPR_COEFFS, fir_lpr_x, AUDIO_LPR_COEFF_TAPS, AUDIO_DECIM, audio_lpr_filter, l_plus_r_lowpass_data ); 
 
     // L-R band-pass filter extracts the L-R channel from 23kHz to 53kHz
-    fir_n( demod, SAMPLES, BP_LMR_COEFFS, fir_bp_x, BP_LMR_COEFF_TAPS, 1, bp_lmr_filter ); 
+    fir_n( demod, SAMPLES, BP_LMR_COEFFS, fir_bp_x, BP_LMR_COEFF_TAPS, 1, bp_lmr_filter, l_minus_r_bandpass_data ); 
 
     // Pilot band-pass filter extracts the 19kHz pilot tone
-    fir_n( demod, SAMPLES, BP_PILOT_COEFFS, fir_pilot_x, BP_PILOT_COEFF_TAPS, 1, bp_pilot_filter ); 
+    fir_n( demod, SAMPLES, BP_PILOT_COEFFS, fir_pilot_x, BP_PILOT_COEFF_TAPS, 1, bp_pilot_filter, pilot_bandpass_data ); 
 
     // square the pilot tone to get 38kHz
-    multiply_n( bp_pilot_filter, bp_pilot_filter, SAMPLES, square );
+    multiply_n( bp_pilot_filter, bp_pilot_filter, SAMPLES, square, pilot_squared_data );
 
     // high-pass filter removes the tone at 0Hz created after the pilot tone is squared
-    fir_n( square, SAMPLES, HP_COEFFS, fir_hp_x, HP_COEFF_TAPS, 1, hp_pilot_filter ); 
+    fir_n( square, SAMPLES, HP_COEFFS, fir_hp_x, HP_COEFF_TAPS, 1, hp_pilot_filter, highpass_data ); 
 
     // demodulate the L-R channel from 38kHz to baseband
-    multiply_n( hp_pilot_filter, bp_lmr_filter, SAMPLES, multiply );
+    multiply_n( hp_pilot_filter, bp_lmr_filter, SAMPLES, multiply, demod_l_minus_r_data );
 
     // L-R low-pass FIR filter - reduce sampling rate from 256 KHz to 32 KHz
-    fir_n( multiply, SAMPLES, AUDIO_LMR_COEFFS, fir_lmr_x, AUDIO_LMR_COEFF_TAPS, AUDIO_DECIM, audio_lmr_filter ); 
+    fir_n( multiply, SAMPLES, AUDIO_LMR_COEFFS, fir_lmr_x, AUDIO_LMR_COEFF_TAPS, AUDIO_DECIM, audio_lmr_filter, l_minus_r_lowpass_data ); 
 
     // Left audio channel - (L+R) + (L-R) = 2L 
-    add_n( audio_lpr_filter, audio_lmr_filter, AUDIO_SAMPLES, left );
+    add_n( audio_lpr_filter, audio_lmr_filter, AUDIO_SAMPLES, left, left_channel_data );
 
     // Right audio channel - (L+R) - (L-R) = 2R
-    sub_n( audio_lpr_filter, audio_lmr_filter, AUDIO_SAMPLES, right );
+    sub_n( audio_lpr_filter, audio_lmr_filter, AUDIO_SAMPLES, right, right_channel_data );
 
     // Left channel deemphasis
-    deemphasis_n( left, deemph_l_x, deemph_l_y, AUDIO_SAMPLES, left_deemph );
+    deemphasis_n( left, deemph_l_x, deemph_l_y, AUDIO_SAMPLES, left_deemph, left_deemph_data );
 
     // Right channel deemphasis
-    deemphasis_n( right, deemph_r_x, deemph_r_y, AUDIO_SAMPLES, right_deemph );
+    deemphasis_n( right, deemph_r_x, deemph_r_y, AUDIO_SAMPLES, right_deemph, right_deemph_data );
 
     // Left volume control
-    gain_n( left_deemph, AUDIO_SAMPLES, VOLUME_LEVEL, left_audio );
+    gain_n( left_deemph, AUDIO_SAMPLES, VOLUME_LEVEL, left_audio, left_volume_data );
 
     // Right volume control
-    gain_n( right_deemph, AUDIO_SAMPLES, VOLUME_LEVEL, right_audio );
+    gain_n( right_deemph, AUDIO_SAMPLES, VOLUME_LEVEL, right_audio, right_volume_data );
 }
 
 
-void read_IQ( unsigned char *IQ, int *I, int *Q, int samples )
+void read_IQ( unsigned char *IQ, int *I, int *Q, int samples, std::ofstream& read_iq_data )
 {
+    //read_iq_data.open("read_iq.txt");
     int i = 0;
     for ( i = 0; i < samples; i++ )
     {
         I[i] = QUANTIZE_I((short)(IQ[i*4+1] << 8) | (short)IQ[i*4+0]);
         Q[i] = QUANTIZE_I((short)(IQ[i*4+3] << 8) | (short)IQ[i*4+2]);
+
+        char eye[9];
+        sprintf(eye, "%08x", I[i]);
+        char cue[9];
+        sprintf(cue, "%08x", Q[i]);
+
+        read_iq_data << eye << cue << endl;
+
     }
+    //read_iq_data.close();
 }
 
-void demodulate_n( int *real, int *imag, int *real_prev, int *imag_prev, const int n_samples, const int gain, int *demod_out )
+void demodulate_n( int *real, int *imag, int *real_prev, int *imag_prev, const int n_samples, const int gain, int *demod_out, std::ofstream& demodulate_n_data )
 {
     int i = 0;
 
     for ( i = 0; i < n_samples; i++ )
     {
-        demodulate( real[i], imag[i], real_prev, imag_prev, gain, &demod_out[i] );
+        demodulate( real[i], imag[i], real_prev, imag_prev, gain, &demod_out[i], demodulate_n_data );
     }
 }
 
 
-void demodulate( int real, int imag, int *real_prev, int *imag_prev, const int gain, int *demod_out )
+void demodulate( int real, int imag, int *real_prev, int *imag_prev, const int gain, int *demod_out, std::ofstream& demodstream )
 {
     // k * atan(c1 * conj(c0))
     int r = DEQUANTIZE(*real_prev * real) - DEQUANTIZE(-*imag_prev * imag);
@@ -131,18 +142,22 @@ void demodulate( int real, int imag, int *real_prev, int *imag_prev, const int g
     
     *demod_out = DEQUANTIZE(gain * qarctan(i, r));
 
+    char demod_data[9];
+    sprintf(demod_data, "%08x", *demod_out);
+    demodstream << demod_data << endl;
+
     // update the previous values
     *real_prev = real;
     *imag_prev = imag;
 }
 
-void deemphasis_n( int *input, int *x, int *y, const int n_samples, int *output )
+void deemphasis_n( int *input, int *x, int *y, const int n_samples, int *output, std::ofstream& deepmhstream )
 {
-    iir_n( input, n_samples, IIR_X_COEFFS, IIR_Y_COEFFS, x, y, IIR_COEFF_TAPS, 1, output );
+    iir_n( input, n_samples, IIR_X_COEFFS, IIR_Y_COEFFS, x, y, IIR_COEFF_TAPS, 1, output, deepmhstream );
 }
 
 
-void iir_n( int *x_in, const int n_samples, const int *x_coeffs, const int *y_coeffs, int *x, int *y, const int taps, int decimation, int *y_out )
+void iir_n( int *x_in, const int n_samples, const int *x_coeffs, const int *y_coeffs, int *x, int *y, const int taps, int decimation, int *y_out, std::ofstream& iirstream )
 {
     int i = 0;
     int j = 0;
@@ -150,11 +165,11 @@ void iir_n( int *x_in, const int n_samples, const int *x_coeffs, const int *y_co
     int n_elements = n_samples / decimation;
     for ( ; i < n_elements; i++, j+=decimation )
     {
-        iir( &x_in[j], x_coeffs, y_coeffs, x, y, taps, decimation, &y_out[i] );
+        iir( &x_in[j], x_coeffs, y_coeffs, x, y, taps, decimation, &y_out[i], iirstream );
     }
 }
 
-void iir( int *x_in, const int *x_coeffs, const int *y_coeffs, int *x, int *y, const int taps, const int decimation, int *y_out )
+void iir( int *x_in, const int *x_coeffs, const int *y_coeffs, int *x, int *y, const int taps, const int decimation, int *y_out, std::ofstream& iirstream )
 {
     int y1 = 0;
     int y2 = 0;
@@ -188,10 +203,14 @@ void iir( int *x_in, const int *x_coeffs, const int *y_coeffs, int *x, int *y, c
     y[0] = y1 + y2;
         
     *y_out = y[taps-1];
+
+    char why[9];
+    sprintf(why, "%08x", *y_out);
+    iirstream << why << endl;
 }
 
 
-void fir_n( int *x_in, const int n_samples, const int *coeff, int *x, const int taps, const int decimation, int *y_out ) 
+void fir_n( int *x_in, const int n_samples, const int *coeff, int *x, const int taps, const int decimation, int *y_out, std::ofstream& filterstream ) 
 {
     int i = 0;
     int j = 0;
@@ -199,12 +218,12 @@ void fir_n( int *x_in, const int n_samples, const int *coeff, int *x, const int 
     int n_elements = n_samples / decimation;
     for ( i = 0; i < n_elements; i++, j+=decimation )
     {
-        fir( &x_in[j], coeff, x, taps, decimation, &y_out[i] );
+        fir( &x_in[j], coeff, x, taps, decimation, &y_out[i], filterstream );
     }
 }
 
 
-void fir( int *x_in, const int *coeff, int *x, const int taps, const int decimation, int *y_out ) 
+void fir( int *x_in, const int *coeff, int *x, const int taps, const int decimation, int *y_out, std::ofstream& filterstream ) 
 {
     int i = 0;
     int j = 0;
@@ -227,10 +246,13 @@ void fir( int *x_in, const int *coeff, int *x, const int taps, const int decimat
     }
     
     *y_out = y;
+    char why[9];
+    sprintf(why, "%08x", *y_out);
+    filterstream << why << endl;
 }
 
 void fir_cmplx_n( int *x_real_in, int *x_imag_in, const int n_samples, const int *h_real, const int *h_imag,
-                  int *x_real, int *x_imag, const int taps, const int decimation, int *y_real_out, int *y_imag_out ) 
+                  int *x_real, int *x_imag, const int taps, const int decimation, int *y_real_out, int *y_imag_out, std::ofstream& fir_complx_n_data ) 
 {
     int i = 0;
     int j = 0;
@@ -238,12 +260,12 @@ void fir_cmplx_n( int *x_real_in, int *x_imag_in, const int n_samples, const int
     int n_elements = n_samples / decimation;
     for ( ; i < n_elements; i++, j+=decimation )
     {
-        fir_cmplx( &x_real_in[j], &x_imag_in[j], h_real, h_imag, x_real, x_imag, taps, decimation, &y_real_out[i], &y_imag_out[i] );
+        fir_cmplx( &x_real_in[j], &x_imag_in[j], h_real, h_imag, x_real, x_imag, taps, decimation, &y_real_out[i], &y_imag_out[i], fir_complx_n_data );
     }
 }
 
 void fir_cmplx( int *x_real_in, int *x_imag_in, const int *h_real, const int *h_imag, int *x_real, int *x_imag,
-                const int taps, const int decimation, int *y_real_out, int *y_imag_out )
+                const int taps, const int decimation, int *y_real_out, int *y_imag_out, std::ofstream& fir_complx_n_data )
 {
     int i = 0;
     int j = 0;
@@ -272,42 +294,60 @@ void fir_cmplx( int *x_real_in, int *x_imag_in, const int *h_real, const int *h_
 
     *y_real_out = y_real;
     *y_imag_out = y_imag;
+
+    char whyreal[9];
+    char whyimag[9];
+    sprintf(whyreal, "%08x", *y_real_out);
+    sprintf(whyimag, "%08x", *y_imag_out);
+    fir_complx_n_data << whyreal << whyimag << endl;
 }
 
-void multiply_n( int *x_in, int *y_in, const int n_samples, int *output )
+void multiply_n( int *x_in, int *y_in, const int n_samples, int *output, std::ofstream& tonestream )
 {
     int i = 0;
     for ( i = 0; i < n_samples; i++ )
     {
         output[i] = DEQUANTIZE( x_in[i] * y_in[i] );
+        char out[9];
+        sprintf(out, "%08x", output[i]);
+        tonestream << out << endl;
     }
 }
 
 
-void add_n( int *x_in, int *y_in, const int n_samples, int *output )
+void add_n( int *x_in, int *y_in, const int n_samples, int *output, std::ofstream& left_channel_data )
 {
     int i = 0;
     for ( i = 0; i < n_samples; i++ )
     {
         output[i] = x_in[i] + y_in[i];
+        char out[9];
+        sprintf(out, "%08x", output[i]);
+        left_channel_data << out << endl;
     }
 }
 
-void sub_n( int *x_in, int *y_in, const int n_samples, int *output )
+void sub_n( int *x_in, int *y_in, const int n_samples, int *output, std::ofstream& right_channel_data )
 {
     int i = 0;
     for ( i = 0; i < n_samples; i++ )
     {
         output[i] = x_in[i] - y_in[i];
+        char out[9];
+        sprintf(out, "%08x", output[i]);
+        right_channel_data << out << endl;
     }
 }
 
-void gain_n( int *input, const int n_samples, int gain, int *output )
+void gain_n( int *input, const int n_samples, int gain, int *output, std::ofstream& gainstream )
 {
     int i = 0;
     for ( i = 0; i < n_samples; i++ )
     {
         output[i] = DEQUANTIZE(input[i] * gain) << (14-BITS);
+        char out[9];
+        sprintf(out, "%08x", output[i]);
+        gainstream << out << endl;
     }
 }
 
