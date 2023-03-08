@@ -31,7 +31,6 @@ hex:
 	touch audio_output.txt
 	hexdump -C audio_dump.bin > audio_output.txt
 
-
 trim: 
 	touch audio_trimmed.txt
 	python3 clean.py
