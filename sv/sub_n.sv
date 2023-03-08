@@ -1,4 +1,4 @@
-module add_n #
+module sub_n #
 (
     DATA_WIDTH = 8,
     AUDIO_SAMPLES = 10
