@@ -93,11 +93,13 @@ void audio_tx( int fd, int sampling_rate, int *lt_channel, int *rt_channel, int 
         lt_channel += chunk_size;
         rt_channel += chunk_size;
         
+        
         if ( write(fd, buffer, 2*chunk_size*sizeof(short)) < 0 )
         {
             printf( "Failed to write audio output!\n" );
             return;
         }
+        
     }
 
     delete buffer;

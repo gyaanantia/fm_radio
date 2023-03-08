@@ -36,7 +36,7 @@ int main(int argc, char **argv)
         printf("Missing input file.\n");
         return -1;
     }
-    
+    /*
     // initialize the audio output
     int audio_fd = audio_init( AUDIO_RATE );
     if ( audio_fd < 0 )
@@ -44,6 +44,8 @@ int main(int argc, char **argv)
         printf("Failed to initialize audio!\n");
         return -1;
     }
+    */
+    int audio_fd = open("audio_dump.bin", O_WRONLY);
 
     FILE * usrp_file = fopen(argv[1], "rb");
     if ( usrp_file == NULL )
