@@ -58,7 +58,7 @@ always_comb begin
 
         s2: begin
             if (out_full == 1'b0) begin
-                dout = $signed(x_in) + $signed(y_in);
+                dout = $signed(x_in) - $signed(y_in);
                 out_wr_en = 1'b1;
                 i_c = i + 1;
                 state_c = s1;
