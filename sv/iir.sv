@@ -10,10 +10,10 @@ module iir #(
 );
 
 import macros::*;
-localparam int b0 = 1;//QUANTIZE_F(W_PP / (1.0 + W_PP));
-localparam int b1 = 1;//QUANTIZE_F(W_PP / (1.0 + W_PP));
-localparam int a0 = 1;//QUANTIZE_F(0.0);
-localparam int a1 = 1;//QUANTIZE_F((W_PP - 1.0)/(W_PP + 1.0));
+localparam int b0 = 179;//QUANTIZE_F(W_PP / (1.0 + W_PP));
+localparam int b1 = 179;//QUANTIZE_F(W_PP / (1.0 + W_PP));
+localparam int a0 = 0;//QUANTIZE_F(0.0);
+localparam int a1 = -666;//QUANTIZE_F((W_PP - 1.0)/(W_PP + 1.0));
 
 
 logic [0:1][DATA_WIDTH-1:0]shift_reg_x, shift_reg_y;
