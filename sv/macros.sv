@@ -5,22 +5,19 @@ package macros;
 static int BITS = 10;
 static int QUANT_VAL = (1 << BITS);
 
-function int QUANTIZE_F
-    (input shortreal f);
+function int QUANTIZE_F (input shortreal f);
     begin
         return int'(shortreal'(f) * shortreal'(QUANT_VAL));
     end
 endfunction
 
-function int QUANTIZE_I
-    (input int i);
+function int QUANTIZE_I (input int i);
     begin
         return int'(i * QUANT_VAL);
     end
 endfunction
 
-function int DEQUANTIZE
-    (input int i);
+function int DEQUANTIZE (input int i);
     begin
         return int'(i / QUANT_VAL);
     end
@@ -41,4 +38,4 @@ static int FM_DEMOD_GAIN = QUANTIZE_F(shortreal'(QUAD_RATE) / (2.0 * PI * MAX_DE
 static shortreal TAU = 0.000075;
 static shortreal W_PP = 0.21150067;
 
-endpackage: macros
+endpackage
