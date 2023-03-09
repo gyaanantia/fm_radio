@@ -1,7 +1,7 @@
-import macros::*;
+
 
 module iir #(
-    DATA_WIDTH = 32
+    parameter int DATA_WIDTH = 32
 ) (
     input logic clock,
     input logic reset,
@@ -9,13 +9,14 @@ module iir #(
     output logic [DATA_WIDTH-1:0] dout
 );
 
-localparam logic [DATA_WIDTH-1:0] b0 = QUANTIZE_F(W_PP / (1.0 + W_PP));
-localparam logic [DATA_WIDTH-1:0] b1 = QUANTIZE_F(W_PP / (1.0 + W_PP));
-localparam logic [DATA_WIDTH-1:0] a0 = QUANTIZE_F(0.0);
-localparam logic [DATA_WIDTH-1:0] a1 = QUANTIZE_F((W_PP - 1.0)/(W_PP + 1.0));
+import macros::*;
+localparam int b0 = 1;//QUANTIZE_F(W_PP / (1.0 + W_PP));
+localparam int b1 = 1;//QUANTIZE_F(W_PP / (1.0 + W_PP));
+localparam int a0 = 1;//QUANTIZE_F(0.0);
+localparam int a1 = 1;//QUANTIZE_F((W_PP - 1.0)/(W_PP + 1.0));
 
 
-logic [0:1][DATA_WIDTH-1:0]shift_reg_x, [0:1][DATA_WIDTH-1:0]shift_reg_y;
+logic [0:1][DATA_WIDTH-1:0]shift_reg_x, shift_reg_y;
 logic [DATA_WIDTH-1:0] x_sum, x_sum_c;
 logic [DATA_WIDTH-1:0] x_mult0, x_mult1;
 logic [DATA_WIDTH-1:0] y_mult0, y_mult1;
@@ -43,3 +44,4 @@ always_comb begin
     y_sum = $signed(x_sum) + $signed(y_mult0) + $signed(y_mult1);
     dout = y_sum;
 end
+endmodule
