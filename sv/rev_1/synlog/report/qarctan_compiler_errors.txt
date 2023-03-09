@@ -1,0 +1,7 @@
+@E: CG680 :"/home/ckb4640/fm_radio/sv/qarctan.sv":10:7:10:19|Package macros_questa not found (must occur before use)
+@E: CS187 :"/home/ckb4640/fm_radio/sv/qarctan.sv":16:0:16:8|Expecting endmodule
+@E: CG680 :"/home/ckb4640/fm_radio/sv/coeffs_questa.svh":3:7:3:12|Package macros not found (must occur before use)
+@E: CS187 :"/home/ckb4640/fm_radio/sv/coeffs_questa.svh":206:0:206:9|Expecting endpackage
+@E: CG672 :"/home/ckb4640/fm_radio/sv/macros_questa.svh":5:7:5:9|Expecting package name
+@E: CS187 :"/home/ckb4640/fm_radio/sv/macros_questa.svh":41:0:41:9|Expecting endpackage
+
