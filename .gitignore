@@ -12,3 +12,4 @@ transcript
 stdout.*
 synlog.tcl
 **/*.ini
+*.prd
