@@ -11,4 +11,4 @@ transcript
 *.prj
 stdout.*
 synlog.tcl
-
+**/*.ini
