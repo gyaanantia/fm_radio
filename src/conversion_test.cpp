@@ -32,7 +32,7 @@ int main(int argc, char **argv)
     printf("QUANTIZE_F(MAX_DEV) = %08x\n", QUANTIZE_F(MAX_DEV));
     printf("QUANTIZE_F(TAU) = %08x\n", QUANTIZE_F(TAU));
     printf("QUANTIZE_F(W_PP) = %08x\n", QUANTIZE_F(W_PP));
-    printf("")
+    printf("");
 
     return 0;
 }
