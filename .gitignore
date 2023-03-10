@@ -2,3 +2,4 @@ sim/*
 syn/*
 *.zip
 usrp.dat
+rev_*
