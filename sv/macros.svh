@@ -3,34 +3,34 @@
 package macros;
 
 int BITS = 10;
-int QUANT_VAL = (1 << BITS);
-logic [31:0] QUANT_VAL_FLOAT = 32'h44800000;
+logic [31:0] QUANT_VAL = (1 << BITS);
+// logic [31:0] QUANT_VAL_FLOAT = 32'h44800000;
 
-function int QUANTIZE_F; 
-input [31:0] f;
+function logic[31:0] QUANTIZE_F; 
+input shortreal f;
     begin
-        return f * QUANT_VAL_FLOAT;
+        return int'(shortreal'(f) * shortreal'($signed(QUANT_VAL)));
     end
 endfunction
 
-function int QUANTIZE_I; 
-input int i;
+function logic[31:0] QUANTIZE_I; 
+input logic[31:0] i;
     begin
-        return int'(i * QUANT_VAL);
+        return int'($signed(i) * $signed(QUANT_VAL));
     end
 endfunction
 
-function int DEQUANTIZE; 
-input int i;
+function logic[31:0] DEQUANTIZE; 
+input logic[31:0] i;
     begin
-        return int'(i / QUANT_VAL);
+        return int'($signed(i) / $signed(QUANT_VAL));
     end
 endfunction
 
 // shortreal PI = 3.1415926535897932384626433832795;
 // PI in float format
 // INEXACT
-logic [31:0] PI = 32'h40490fdb;
+logic [31:0] PI = QUANTIZE_F(3.1415926) - 32'h00000001;
 
 int ADC_RATE = 64000000;
 int USRP_DECIM = 250;
@@ -45,16 +45,16 @@ int MAX_TAPS = 32;
 // shortreal MAX_DEV = 55000.0;
 // MAX_DEV in float format
 // EXACT
-logic [31:0] MAX_DEV = 32'h4756d800;
+logic [31:0] MAX_DEV = QUANTIZE_F(55000.0);
 
 int FM_DEMOD_GAIN = QUANTIZE_F(QUAD_RATE / (2.0 * PI * MAX_DEV));
 
 // shortreal TAU = 0.000075;
 // TAU in float format
-logic [31:0] TAU = 32'h389d4952;
+logic [31:0] TAU = QUANTIZE_F(0.000075);
 
 // shortreal W_PP = 0.21150067;
 // W_PP in float format
-logic [31:0] W_PP = 32'h3e5893a2;
+logic [31:0] W_PP = QUANTIZE_F(0.21150067) - 32'h00000001;
 
 endpackage
