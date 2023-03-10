@@ -4,7 +4,6 @@ module iir_tb ();
 
 /* files */
 localparam string IN_FILE_NAME = "../left_channel.txt";
-localparam string OUT_FILE_NAME = "iir_out.txt";
 localparam string CMP_FILE_NAME = "../left_deemph.txt";
 
 localparam int DATA_WIDTH = 32;
@@ -91,7 +90,6 @@ end
 
 initial begin : comp_process
     int i, r;
-    int out_file;
     int cmp_file;
     logic [DATA_WIDTH-1:0] cmp_dout;
 
@@ -99,9 +97,8 @@ initial begin : comp_process
     @(posedge clock);
     @(posedge clock);
 
-    $display("@ %0t: Comparing file %s...", $time, OUT_FILE_NAME);
+    $display("@ %0t: Comparing file %s...", $time, CMP_FILE_NAME);
     
-    out_file = $fopen(OUT_FILE_NAME, "w");
     cmp_file = $fopen(CMP_FILE_NAME, "r");
 
     for (i = 0; i < DATA_SIZE; i++) begin
@@ -109,12 +106,11 @@ initial begin : comp_process
             r = $fscanf(cmp_file, "%h", cmp_dout);
             if (cmp_dout != dout) begin
                 out_errors++;
-                $write("@ %0t: %s(%0d): ERROR: %x != %x at address 0x%x.\n", $time, OUT_FILE_NAME, i+1, {dout}, cmp_dout, i);
+                $write("@ %0t: %s(%0d): ERROR: %x != %x at address 0x%x.\n", $time, "out file", i+1, {dout}, cmp_dout, i);
             end
         end
 
     @(negedge clock);
-    $fclose(out_file);
     $fclose(cmp_file);
     out_read_done = 1'b1;
 end

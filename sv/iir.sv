@@ -1,5 +1,3 @@
-
-
 module iir #(
     parameter int DATA_WIDTH = 32
 ) (
@@ -9,7 +7,13 @@ module iir #(
     output logic [DATA_WIDTH-1:0] dout
 );
 
-import macros::*;
+function logic[31:0] DEQUANTIZE; 
+input logic[31:0] i;
+    begin
+        return int'($signed(i) / $signed(1 << 10));
+    end
+endfunction
+
 localparam int b0 = 178;//QUANTIZE_F(W_PP / (1.0 + W_PP));
 localparam int b1 = 178;//QUANTIZE_F(W_PP / (1.0 + W_PP));
 localparam int a1 = 0;//QUANTIZE_F(0.0);
