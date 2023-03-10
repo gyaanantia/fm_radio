@@ -1,11 +1,14 @@
 syn/*
 *.zip
 usrp.dat
-rev_*
-sim/work/*
-sim/lib/*
+**/rev_*
+**/work/*
+**/lib/*
 *.mti*
 *.mpf
 transcript
 *.wlf
 *.prj
+stdout.*
+synlog.tcl
+
