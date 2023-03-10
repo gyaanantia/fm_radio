@@ -1,5 +1,11 @@
-sim/*
 syn/*
 *.zip
 usrp.dat
 rev_*
+sim/work/*
+sim/lib/*
+*.mti*
+*.mpf
+transcript
+*.wlf
+*.prj
