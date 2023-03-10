@@ -45,7 +45,7 @@ initial begin
     reset = 1'b0;
 end
 
-initial begin
+initial begin : tb_process
     longint unsigned start_time, end_time;
 
     @(negedge reset);
@@ -70,7 +70,7 @@ initial begin
     $finish;
 end
 
-initial begin
+initial begin : read_process
     int i, r;
     int in_file;
     @(negedge reset);
@@ -89,14 +89,15 @@ initial begin
     in_write_done = 1'b1;
 end
 
-initial begin
+initial begin : comp_process
     int i, r;
     int out_file;
     int cmp_file;
     logic [DATA_WIDTH-1:0] cmp_dout;
 
     @(negedge reset);
-    @(negedge clock);
+    @(posedge clock);
+    @(posedge clock);
 
     $display("@ %0t: Comparing file %s...", $time, OUT_FILE_NAME);
     
@@ -104,14 +105,12 @@ initial begin
     cmp_file = $fopen(CMP_FILE_NAME, "r");
 
     for (i = 0; i < DATA_SIZE; i++) begin
-            @(negedge clock);
-            @(negedge clock);
+        @(posedge clock);
             r = $fscanf(cmp_file, "%h", cmp_dout);
             if (cmp_dout != dout) begin
                 out_errors++;
                 $write("@ %0t: %s(%0d): ERROR: %x != %x at address 0x%x.\n", $time, OUT_FILE_NAME, i+1, {dout}, cmp_dout, i);
             end
-            @(posedge clock);
         end
 
     @(negedge clock);

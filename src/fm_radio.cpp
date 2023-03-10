@@ -188,6 +188,23 @@ void iir( int *x_in, const int *x_coeffs, const int *y_coeffs, int *x, int *y, c
     y[0] = y1 + y2;
         
     *y_out = y[taps-1];
+
+    static int kk = 0;
+    if (kk < 3) {
+        printf("x[0] = %d %x x[1] = %d %x\n", x[0], x[0], x[1], x[1]);
+        printf("y[0] = %d %x y[1] = %d %x\n", y[0], y[0], y[1], y[1]);
+        printf("x_c[0] = %d %x x_c[1] = %d %x\n", x_coeffs[0],x_coeffs[0], x_coeffs[1],x_coeffs[1]);
+        printf("y_c[0] = %d %x y_x[1] = %d %x\n", y_coeffs[0],y_coeffs[0], y_coeffs[1], y_coeffs[1]);
+        printf("x_mult0 = %x x_mult1 = %x\n", x_coeffs[0] * x[0], x_coeffs[1] * x[1]);
+        printf("y_mult0 = %x y_mult1 = %x\n", y_coeffs[0] * y[0], y_coeffs[1] * y[1]);
+        printf("DQ(xm0) = %x DQ(xm1) = %x\n", DEQUANTIZE(x_coeffs[0] * x[0]),DEQUANTIZE(x_coeffs[1] * x[1]));
+        printf("DQ(ym0) = %x DQ(ym1) = %x\n", DEQUANTIZE(y_coeffs[0] * y[0]),DEQUANTIZE(y_coeffs[1] * y[1]));
+        printf("y[0] = %d %x y[1] = %d %x\n", y[0], y[0], y[1], y[1]);
+        printf("y_out = %d %x\n\n", y[taps-1], y[taps-1]);
+        
+    }
+    kk++;
+    
 }
 
 
