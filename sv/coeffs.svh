@@ -1,20 +1,22 @@
+`include "macros.svh"
 package coeffs;
 
 import macros::*;
 
-static int IIR_COEFF_TAPS = 2;
-static int IIR_Y_COEFFS[] = '{QUANTIZE_F(0.0), QUANTIZE_F((W_PP - 1.0) / (W_PP + 1.0))};
-static int IIR_X_COEFFS[] = '{QUANTIZE_F(W_PP / (1.0 + W_PP)), QUANTIZE_F(W_PP / (1.0 + W_PP))};
+logic [31:0] ONE_FLOAT = 32'h3f800000;
+int IIR_COEFF_TAPS = 2;
+int IIR_Y_COEFFS[2] = '{QUANTIZE_F(0.0), QUANTIZE_F((W_PP - ONE_FLOAT) / (W_PP + ONE_FLOAT))};
+int IIR_X_COEFFS[2] = '{QUANTIZE_F(W_PP / (ONE_FLOAT + W_PP)), QUANTIZE_F(W_PP / (ONE_FLOAT + W_PP))};
 
-static int CHANNEL_COEFF_TAPS = 20;
-static int CHANNEL_COEFFS_REAL[] =
+int CHANNEL_COEFF_TAPS = 20;
+int CHANNEL_COEFFS_REAL[20] =
 '{
 	int'(32'h00000001), int'(32'h00000008), int'(32'hfffffff3), int'(32'h00000009), int'(32'h0000000b), int'(32'hffffffd3), int'(32'h00000045), int'(32'hffffffd3), 
 	int'(32'hffffffb1), int'(32'h00000257), int'(32'h00000257), int'(32'hffffffb1), int'(32'hffffffd3), int'(32'h00000045), int'(32'hffffffd3), int'(32'h0000000b), 
 	int'(32'h00000009), int'(32'hfffffff3), int'(32'h00000008), int'(32'h00000001)
 };
 
-static int CHANNEL_COEFFS_IMAG[] =
+int CHANNEL_COEFFS_IMAG[20] =
 '{
 	int'(32'h00000000), int'(32'h00000000), int'(32'h00000000), int'(32'h00000000), int'(32'h00000000), int'(32'h00000000), int'(32'h00000000), int'(32'h00000000), 
 	int'(32'h00000000), int'(32'h00000000), int'(32'h00000000), int'(32'h00000000), int'(32'h00000000), int'(32'h00000000), int'(32'h00000000), int'(32'h00000000), 
@@ -22,8 +24,8 @@ static int CHANNEL_COEFFS_IMAG[] =
 };
 
 // L+R low-pass filter coefficients @ 15kHz
-static int AUDIO_LPR_COEFF_TAPS = 32;
-static int AUDIO_LPR_COEFFS[] =
+int AUDIO_LPR_COEFF_TAPS = 32;
+int AUDIO_LPR_COEFFS[32] =
 '{
 	int'(32'hfffffffd), int'(32'hfffffffa), int'(32'hfffffff4), int'(32'hffffffed), int'(32'hffffffe5), int'(32'hffffffdf), int'(32'hffffffe2), int'(32'hfffffff3), 
 	int'(32'h00000015), int'(32'h0000004e), int'(32'h0000009b), int'(32'h000000f9), int'(32'h0000015d), int'(32'h000001be), int'(32'h0000020e), int'(32'h00000243), 
@@ -32,8 +34,8 @@ static int AUDIO_LPR_COEFFS[] =
 };
 
 // L-R low-pass filter coefficients @ 15kHz), gain = 60
-static int AUDIO_LMR_COEFF_TAPS = 32;
-static int AUDIO_LMR_COEFFS[] =
+int AUDIO_LMR_COEFF_TAPS = 32;
+int AUDIO_LMR_COEFFS[32] =
 '{
 	int'(32'hfffffffd), int'(32'hfffffffa), int'(32'hfffffff4), int'(32'hffffffed), int'(32'hffffffe5), int'(32'hffffffdf), int'(32'hffffffe2), int'(32'hfffffff3), 
 	int'(32'h00000015), int'(32'h0000004e), int'(32'h0000009b), int'(32'h000000f9), int'(32'h0000015d), int'(32'h000001be), int'(32'h0000020e), int'(32'h00000243), 
@@ -42,8 +44,8 @@ static int AUDIO_LMR_COEFFS[] =
 };
 
 // Pilot tone band-pass filter @ 19kHz
-static int BP_PILOT_COEFF_TAPS = 32;
-static int BP_PILOT_COEFFS[] =
+int BP_PILOT_COEFF_TAPS = 32;
+int BP_PILOT_COEFFS[32] =
 '{
 	int'(32'h0000000e), int'(32'h0000001f), int'(32'h00000034), int'(32'h00000048), int'(32'h0000004e), int'(32'h00000036), int'(32'hfffffff8), int'(32'hffffff98), 
 	int'(32'hffffff2d), int'(32'hfffffeda), int'(32'hfffffec3), int'(32'hfffffefe), int'(32'hffffff8a), int'(32'h0000004a), int'(32'h0000010f), int'(32'h000001a1), 
@@ -52,8 +54,8 @@ static int BP_PILOT_COEFFS[] =
 };
 
 // L-R band-pass filter @ 23kHz to 53kHz
-static int BP_LMR_COEFF_TAPS = 32;
-static int BP_LMR_COEFFS[] =
+int BP_LMR_COEFF_TAPS = 32;
+int BP_LMR_COEFFS[32] =
 '{
 	int'(32'h00000000), int'(32'h00000000), int'(32'hfffffffc), int'(32'hfffffff9), int'(32'hfffffffe), int'(32'h00000008), int'(32'h0000000c), int'(32'h00000002), 
 	int'(32'h00000003), int'(32'h0000001e), int'(32'h00000030), int'(32'hfffffffc), int'(32'hffffff8c), int'(32'hffffff58), int'(32'hffffffc3), int'(32'h0000008a), 
@@ -62,8 +64,8 @@ static int BP_LMR_COEFFS[] =
 };
 
 // High pass filter @ 0Hz removes noise after pilot tone is squared
-static int HP_COEFF_TAPS = 32;
-static int HP_COEFFS[] =
+int HP_COEFF_TAPS = 32;
+int HP_COEFFS[32] =
 '{
 	int'(32'hffffffff), int'(32'h00000000), int'(32'h00000000), int'(32'h00000002), int'(32'h00000004), int'(32'h00000008), int'(32'h0000000b), int'(32'h0000000c), 
 	int'(32'h00000008), int'(32'hffffffff), int'(32'hffffffee), int'(32'hffffffd7), int'(32'hffffffbb), int'(32'hffffff9f), int'(32'hffffff87), int'(32'hffffff76), 
@@ -71,7 +73,7 @@ static int HP_COEFFS[] =
 	int'(32'h0000000c), int'(32'h0000000b), int'(32'h00000008), int'(32'h00000004), int'(32'h00000002), int'(32'h00000000), int'(32'h00000000), int'(32'hffffffff)
 };
 
-static int sin_lut[1024] =
+int sin_lut[1024] =
 '{
 	int'(32'h00000000), int'(32'h00000006), int'(32'h0000000C), int'(32'h00000012), int'(32'h00000019), int'(32'h0000001F), int'(32'h00000025), int'(32'h0000002B), 
 	int'(32'h00000032), int'(32'h00000038), int'(32'h0000003E), int'(32'h00000045), int'(32'h0000004B), int'(32'h00000051), int'(32'h00000057), int'(32'h0000005E), 

@@ -1,3 +1,5 @@
+`include "../coeffs.svh"
+
 module coeffs_tb;
 
 import macros::*;
