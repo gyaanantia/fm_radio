@@ -1,9 +1,9 @@
-`include "coeffs.svh";
+// `include "coeffs.svh";
 
-import macros::*;
-import coeffs::*;
+// import macros::*;
+// import coeffs::*;
 
-module fir #(
+module fir_fast #(
     parameter DATA_WIDTH = 32,
     parameter [0:31][31:0] COEFF =
 '{
@@ -28,12 +28,19 @@ module fir #(
     output logic                    y_wr_en
 );
 
-typedef enum logic[2:0] {s0, s1, s2} state_t;
+function logic[31:0] DEQUANTIZE; 
+input logic[31:0] i;
+    begin
+        return int'($signed(i) / $signed(1 << 10));
+    end
+endfunction
+
+typedef enum logic[2:0] {s0, s1, s2, s3, s4} state_t;
 state_t state, state_c;
 logic [0:31][31:0] x, x_c;
 logic [31:0] count = 0; 
 logic [31:0] count_c;
-logic [31:0] sum, sum_c, temp_sum, temp_deq;
+logic [31:0] sum, sum_c, temp_sum, temp_sum_c;
 logic [31:0] y_out_c;
 logic y_wr_en_c;
 
@@ -44,6 +51,7 @@ always_ff @( posedge clock or posedge reset ) begin
         count <= '0;
         state <= s0;
         y_wr_en <= 1'b0;
+        temp_sum <= '0;
     end else begin
         x <= x_c;
         y_out <= y_out_c;
@@ -51,13 +59,14 @@ always_ff @( posedge clock or posedge reset ) begin
         state <= state_c;
         sum <= sum_c;
         y_wr_en <= y_wr_en_c;
+        temp_sum <= temp_sum_c;
     end
 end
 
 always_comb begin
     x_c = x;
     sum_c = '0;
-    temp_sum = '0;
+    temp_sum_c = '0;
     x_rd_en = 1'b0;
     y_wr_en_c = 1'b0;
     y_out_c = '0;
@@ -80,25 +89,36 @@ always_comb begin
         end
 
         s1: begin
-            temp_sum = COEFF[TAPS - count - 1] * x[count];
-            temp_deq = DEQUANTIZE(temp_sum);
-            sum_c = sum + temp_deq;
+            temp_sum_c = COEFF[TAPS - count - 1] * x[count];
+            sum_c = sum;
+            count_c = count;
+            state_c = s2;
+        end
+
+        s2: begin
+            temp_sum_c = DEQUANTIZE(temp_sum);
+            sum_c = sum;
+            count_c = count;
+            state_c = s3;
+        end
+
+        s3: begin
+            sum_c = sum + temp_sum;
             count_c = (count + 1) % 32;
             if (count == 31) begin 
-
-                state_c = s2;
+                state_c = s4;
             end else begin
                 state_c = s1;
             end
         end
 
-        s2: begin
+        s4: begin
             if (y_out_full == 1'b0) begin
                 y_wr_en_c = 1'b1;
                 y_out_c = sum;
                 state_c = s0;
             end else begin
-                state_c = s2;
+                state_c = s4;
             end
         end
 
