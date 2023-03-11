@@ -12,20 +12,26 @@ localparam int CLOCK_PERIOD = 10;
 
 /* signals for tb */
 logic start, out_read_done, in_write_done;
-integer out_errors = '0;
+logic in_wr_en;
+logic in_full;
+logic out_rd_en;
+logic out_empty;
+integer out_errors = 0;
 
 /* signals interfacing iir */
 logic clock, reset;
 logic [DATA_WIDTH-1:0] din, dout;
 
 /* iir instance */
-iir #(
-    .DATA_WIDTH(DATA_WIDTH)
-) iir_inst(
+iir_top dut (
     .clock(clock),
     .reset(reset),
     .din(din),
-    .dout(dout)
+    .in_wr_en(in_wr_en),
+    .in_full(in_full),
+    .dout(dout),
+    .out_rd_en(out_rd_en),
+    .out_empty(out_empty)
 );
 
 /* clock */
@@ -77,13 +83,21 @@ initial begin : read_process
     in_write_done = 1'b0;
 
     in_file = $fopen(IN_FILE_NAME, "r");
+    in_wr_en = 1'b0;
     i = 0;
-    for (i = 0; i < DATA_SIZE; i++) begin
-        @(posedge clock);
-        r = $fscanf(in_file, "%h", din);
+    while (i < DATA_SIZE) begin
+        @(negedge clock);
+        if (in_full == 1'b0) begin
+            r = $fscanf(in_file, "%08h", din);
+            in_wr_en = 1'b1;
+            i++;
+        end else begin
+            in_wr_en = 1'b0;
+        end
     end
 
     @(negedge clock);
+    in_wr_en = 1'b0;
     $fclose(in_file);
     in_write_done = 1'b1;
 end
@@ -95,22 +109,30 @@ initial begin : comp_process
 
     @(negedge reset);
     @(posedge clock);
-    @(posedge clock);
 
     $display("@ %0t: Comparing file %s...", $time, CMP_FILE_NAME);
     
     cmp_file = $fopen(CMP_FILE_NAME, "r");
-
-    for (i = 0; i < DATA_SIZE; i++) begin
-        @(posedge clock);
-            r = $fscanf(cmp_file, "%h", cmp_dout);
-            if (cmp_dout != dout) begin
-                out_errors++;
-                $write("@ %0t: %s(%0d): ERROR: %x != %x at address 0x%x.\n", $time, "out file", i+1, {dout}, cmp_dout, i);
-            end
+    out_rd_en = 1'b0;
+    @(posedge clock);
+    @(posedge clock);
+    i = 0;
+    while (i < (DATA_SIZE)) begin
+        @(negedge clock);
+        out_rd_en = 1'b0;
+            if (out_empty == 1'b0) begin
+                out_rd_en = 1'b1;
+                r = $fscanf(cmp_file, "%08h", cmp_dout);
+                if (cmp_dout != dout) begin
+                    out_errors++;
+                    $write("@ %0t: %s(%0d): ERROR: %x != %x at address 0x%x.\n", $time, "out file", i+1, {dout}, cmp_dout, i);
+                end
+                i++;
+            end 
         end
 
     @(negedge clock);
+    out_rd_en = 1'b0;
     $fclose(cmp_file);
     out_read_done = 1'b1;
 end
