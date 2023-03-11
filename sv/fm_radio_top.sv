@@ -11,6 +11,7 @@ import macros::*;
 import coeffs::*;
 
 localparam FIFO_DATA_WIDTH = 32;
+localparam DEEMPH_DATA_WIDTH = 32;
 
 //// BEGIN FIFO SIGNALS ////
 
@@ -206,7 +207,7 @@ fifo #(
     .empty(empty_i_fir_complex_out_fifo)
 );
 
-demod demond_inst();
+demod demod_inst();
 
 fifo #(
     .FIFO_BUFFER_SIZE(),
@@ -376,15 +377,31 @@ fifo #(
     .empty(empty_sub_out_fifo)
 );
 
-deemph deemph_add();
+deemph #(
+    DEEMPH_DATA_WIDTH = 32
+) deemph_add(
+    .clock(clock),
+    .reset(reset),
+    .din(dout_add_out_fifo),
+    .dout(din_deemph_add_out_fifo),
+    .out_wr_en(wr_en_deemph_add_out_fifo),
+    .in_empty(empty_add_out_fifo),
+    .out_full(full_deemph_add_out_fifo),
+    .in_rd_en(rd_en_add_out_fifo)
+);
 
 fifo #(
     .FIFO_BUFFER_SIZE(),
     .FIFO_DATA_WIDTH(FIFO_DATA_WIDTH)
 ) deemph_add_out_fifo(
+    .reset(reset),    .clock(clock),
     .reset(reset),
-    .wr_clk(clk),
-    .wr_en(wr_en_deemph_add_out_fifo),
+    .din(dout_add_out_fifo),
+    .dout(din_deemph_add_out_fifo),
+    .out_wr_en(wr_en_deemph_add_out_fifo),
+    .in_empty(empty_add_out_fifo),
+    .out_full(full_deemph_add_out_fifo),
+    .in_rd_en(rd_en_add_out_fifo)
     .din(din_deemph_add_out_fifo),
     .full(full_deemph_add_out_fifo),
     .rd_clk(clk),
@@ -393,7 +410,18 @@ fifo #(
     .empty(empty_deemph_add_out_fifo)
 );
 
-deemph deemph_sub();
+deemph #(
+    DEEMPH_DATA_WIDTH = 32
+) deemph_sub(
+    .clock(clock),
+    .reset(reset),
+    .din(dout_sub_out_fifo),
+    .dout(din_deemph_sub_out_fifo),
+    .out_wr_en(wr_en_deemph_sub_out_fifo),
+    .in_empty(empty_sub_out_fifo),
+    .out_full(full_deemph_sub_out_fifo),
+    .in_rd_en(rd_en_sub_out_fifo)
+);
 
 fifo #(
     .FIFO_BUFFER_SIZE(),
