@@ -53,9 +53,9 @@ always_comb begin
     x_mult0 = DEQUANTIZE($signed(shift_reg_x[0])*$signed(b0));
     x_mult1 = DEQUANTIZE($signed(shift_reg_x[1])*$signed(b1));
     y_mult0 = DEQUANTIZE($signed(shift_reg_y[0])*$signed(a0));
-    y_mult1 = DEQUANTIZE($signed(shift_reg_y[1])*$signed(a1));
+    //y_mult1 = DEQUANTIZE($signed(shift_reg_y[1])*$signed(a1));
     x_sum_c = $signed(x_mult0) + $signed(x_mult1);
-    y_sum = $signed(x_sum) + $signed(y_mult0) + $signed(y_mult1);
+    y_sum = $signed(x_sum) + $signed(y_mult0) /*+ $signed(y_mult1)*/;
     dout = y_sum;
      if (out_full == 1'b0) begin
         out_wr_en = 1'b1;
