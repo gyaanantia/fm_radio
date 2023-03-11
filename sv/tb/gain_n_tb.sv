@@ -1,6 +1,6 @@
 `timescale 1ns/1ns
 
-module fir_tb;
+module gain_n_tb;
 
 /* files */
 localparam string IN_FILE_NAME = "../left_deemph.txt";

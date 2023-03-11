@@ -9,6 +9,16 @@ module gain_n #(
     output logic [DATA_WIDTH-1:0] dout
 );
 
-assign dout = DEQUANTIZE(din * gain) << (14-BITS);
+logic [31:0] mult;
+logic [31:0] deq;
+logic [31:0] shift;
 
+
+
+always_comb begin
+    mult = din * gain;
+    deq = DEQUANTIZE(mult);
+    shift = deq << (14-BITS);
+    dout = shift;
+end
 endmodule
