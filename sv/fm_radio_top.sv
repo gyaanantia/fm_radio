@@ -409,7 +409,7 @@ fifo #(
     .empty(empty_sub_out_fifo)
 );
 
-deemph #(
+iir_fast #(
     DEEMPH_DATA_WIDTH = 32
 ) deemph_add(
     .clock(clock),
@@ -442,7 +442,7 @@ fifo #(
     .empty(empty_deemph_add_out_fifo)
 );
 
-deemph #(
+iir_fast #(
     DEEMPH_DATA_WIDTH = 32
 ) deemph_sub(
     .clock(clock),
