@@ -343,7 +343,23 @@ fifo #(
     .empty(empty_fir_E_out_fifo)
 );
 
-add_n add();
+add_n #
+(
+    .DATA_WIDTH(32),
+    .AUDIO_SAMPLES(AUDIO_SAMPLES) 
+) add(
+    .clock(clock),
+    .reset(reset),
+    .x_in(dout_fir_E_out_fifo),
+    .y_in(dout_fir_D_out_fifo),
+    .out_wr_en(wr_en_add_out_fifo),
+    .x_in_empty(empty_fir_E_out_fifo),
+    .y_in_empty(empty_fir_D_out_fifo),
+    .out_full(full_add_out_fifo),
+    .dout(din_add_out_fifo),
+    .x_in_rd_en(rd_en_fir_E_out_fifo),
+    .y_in_rd_en(rd_en_fir_D_out_fifo)
+);
 
 fifo #(
     .FIFO_BUFFER_SIZE(),
@@ -360,7 +376,23 @@ fifo #(
     .empty(empty_add_out_fifo)
 );
 
-sub_n sub();
+sub_n #
+(
+    .DATA_WIDTH(32),
+    .AUDIO_SAMPLES(AUDIO_SAMPLES) 
+) sub(
+    .clock(clock),
+    .reset(reset),
+    .x_in(dout_fir_D_out_fifo),
+    .y_in(dout_fir_E_out_fifo),
+    .out_wr_en(wr_en_sub_out_fifo),
+    .x_in_empty(empty_fir_D_out_fifo),
+    .y_in_empty(empty_fir_E_out_fifo),
+    .out_full(full_sub_out_fifo),
+    .dout(din_sub_out_fifo),
+    .x_in_rd_en(rd_en_fir_D_out_fifo),
+    .y_in_rd_en(rd_en_fir_E_out_fifo)
+);
 
 fifo #(
     .FIFO_BUFFER_SIZE(),
