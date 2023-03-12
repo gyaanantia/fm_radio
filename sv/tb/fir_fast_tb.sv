@@ -1,14 +1,15 @@
 `timescale 1ns/1ns
 
-module iir_tb ();
+module fir_fast_tb;
 
 /* files */
-localparam string IN_FILE_NAME = "../left_channel.txt";
-localparam string CMP_FILE_NAME = "../left_deemph.txt";
+localparam string IN_FILE_NAME = "../demodulate_n.txt";
+localparam string OUT_FILE_NAME = "../demod_out.txt";
+localparam string CMP_FILE_NAME = "../l_plus_r_lowpass.txt";
 
-localparam int DATA_WIDTH = 32;
-localparam int DATA_SIZE = 100;
-localparam int CLOCK_PERIOD = 10;
+localparam DATA_WIDTH = 32;
+localparam DATA_SIZE = 800;
+localparam CLOCK_PERIOD = 10;
 
 /* signals for tb */
 logic start, out_read_done, in_write_done;
@@ -18,12 +19,12 @@ logic out_rd_en;
 logic out_empty;
 integer out_errors = 0;
 
-/* signals interfacing iir */
+/* signals interfacing fir */
 logic clock, reset;
 logic [DATA_WIDTH-1:0] din, dout;
 
-/* iir instance */
-iir_top dut (
+/* fir instance */
+fir_fast_top dut (
     .clock(clock),
     .reset(reset),
     .din(din),
@@ -114,8 +115,9 @@ initial begin : comp_process
     
     cmp_file = $fopen(CMP_FILE_NAME, "r");
     out_rd_en = 1'b0;
+
     i = 0;
-    while (i < (DATA_SIZE)) begin
+    while (i < (DATA_SIZE / 8)) begin
         @(negedge clock);
         out_rd_en = 1'b0;
             if (out_empty == 1'b0) begin

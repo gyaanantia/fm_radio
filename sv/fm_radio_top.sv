@@ -11,6 +11,7 @@ import macros::*;
 import coeffs::*;
 
 localparam FIFO_DATA_WIDTH = 32;
+localparam DEEMPH_DATA_WIDTH = 32;
 
 //// BEGIN FIFO SIGNALS ////
 
@@ -206,7 +207,7 @@ fifo #(
     .empty(empty_i_fir_complex_out_fifo)
 );
 
-demod demond_inst();
+demod demod_inst();
 
 fifo #(
     .FIFO_BUFFER_SIZE(),
@@ -342,7 +343,23 @@ fifo #(
     .empty(empty_fir_E_out_fifo)
 );
 
-add_n add();
+add_n #
+(
+    .DATA_WIDTH(32),
+    .AUDIO_SAMPLES(AUDIO_SAMPLES) 
+) add(
+    .clock(clock),
+    .reset(reset),
+    .x_in(dout_fir_E_out_fifo),
+    .y_in(dout_fir_D_out_fifo),
+    .out_wr_en(wr_en_add_out_fifo),
+    .x_in_empty(empty_fir_E_out_fifo),
+    .y_in_empty(empty_fir_D_out_fifo),
+    .out_full(full_add_out_fifo),
+    .dout(din_add_out_fifo),
+    .x_in_rd_en(rd_en_fir_E_out_fifo),
+    .y_in_rd_en(rd_en_fir_D_out_fifo)
+);
 
 fifo #(
     .FIFO_BUFFER_SIZE(),
@@ -359,7 +376,23 @@ fifo #(
     .empty(empty_add_out_fifo)
 );
 
-sub_n sub();
+sub_n #
+(
+    .DATA_WIDTH(32),
+    .AUDIO_SAMPLES(AUDIO_SAMPLES) 
+) sub(
+    .clock(clock),
+    .reset(reset),
+    .x_in(dout_fir_D_out_fifo),
+    .y_in(dout_fir_E_out_fifo),
+    .out_wr_en(wr_en_sub_out_fifo),
+    .x_in_empty(empty_fir_D_out_fifo),
+    .y_in_empty(empty_fir_E_out_fifo),
+    .out_full(full_sub_out_fifo),
+    .dout(din_sub_out_fifo),
+    .x_in_rd_en(rd_en_fir_D_out_fifo),
+    .y_in_rd_en(rd_en_fir_E_out_fifo)
+);
 
 fifo #(
     .FIFO_BUFFER_SIZE(),
@@ -376,15 +409,31 @@ fifo #(
     .empty(empty_sub_out_fifo)
 );
 
-deemph deemph_add();
+iir_fast #(
+    DEEMPH_DATA_WIDTH = 32
+) deemph_add(
+    .clock(clock),
+    .reset(reset),
+    .din(dout_add_out_fifo),
+    .dout(din_deemph_add_out_fifo),
+    .out_wr_en(wr_en_deemph_add_out_fifo),
+    .in_empty(empty_add_out_fifo),
+    .out_full(full_deemph_add_out_fifo),
+    .in_rd_en(rd_en_add_out_fifo)
+);
 
 fifo #(
     .FIFO_BUFFER_SIZE(),
     .FIFO_DATA_WIDTH(FIFO_DATA_WIDTH)
 ) deemph_add_out_fifo(
+    .reset(reset),    .clock(clock),
     .reset(reset),
-    .wr_clk(clk),
-    .wr_en(wr_en_deemph_add_out_fifo),
+    .din(dout_add_out_fifo),
+    .dout(din_deemph_add_out_fifo),
+    .out_wr_en(wr_en_deemph_add_out_fifo),
+    .in_empty(empty_add_out_fifo),
+    .out_full(full_deemph_add_out_fifo),
+    .in_rd_en(rd_en_add_out_fifo)
     .din(din_deemph_add_out_fifo),
     .full(full_deemph_add_out_fifo),
     .rd_clk(clk),
@@ -393,7 +442,18 @@ fifo #(
     .empty(empty_deemph_add_out_fifo)
 );
 
-deemph deemph_sub();
+iir_fast #(
+    DEEMPH_DATA_WIDTH = 32
+) deemph_sub(
+    .clock(clock),
+    .reset(reset),
+    .din(dout_sub_out_fifo),
+    .dout(din_deemph_sub_out_fifo),
+    .out_wr_en(wr_en_deemph_sub_out_fifo),
+    .in_empty(empty_sub_out_fifo),
+    .out_full(full_deemph_sub_out_fifo),
+    .in_rd_en(rd_en_sub_out_fifo)
+);
 
 fifo #(
     .FIFO_BUFFER_SIZE(),

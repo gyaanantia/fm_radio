@@ -1,6 +1,6 @@
 `timescale 1ns/1ns
 
-module iir_tb ();
+module iir_fast_tb ();
 
 /* files */
 localparam string IN_FILE_NAME = "../left_channel.txt";
@@ -23,7 +23,7 @@ logic clock, reset;
 logic [DATA_WIDTH-1:0] din, dout;
 
 /* iir instance */
-iir_top dut (
+iir_fast_top dut (
     .clock(clock),
     .reset(reset),
     .din(din),
