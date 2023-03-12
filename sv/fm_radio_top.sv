@@ -258,7 +258,15 @@ fifo #(
     .empty(empty_fir_B_out_fifo)
 );
 
-multiply_n mult_A();
+// connecting fifos bc multiply is combinational
+assign rd_en_fir_B_out_fifo = wr_en_mult_A_out_fifo;
+assign wr_en_mult_A_out_fifo = ~empty_fir_B_out_fifo & ~full_mult_A_out_fifo;
+
+multiply_n mult_A(
+    .x_in(dout_fir_B_out_fifo),
+    .y_in(dout_fir_B_out_fifo),
+    .dout(din_mult_A_out_fifo)
+);
 
 fifo #(
     .FIFO_BUFFER_SIZE(),
@@ -292,7 +300,17 @@ fifo #(
     .empty(empty_fir_C_out_fifo)
 );
 
-multiply_n mult_B();
+// connecting fifos bc multiply is combinational
+// two inputs so we want to read at same time
+assign rd_en_fir_A_out_fifo = wr_en_mult_B_out_fifo;
+assign rd_en_fir_C_out_fifo = rd_en_fir_A_out_fifo;
+assign wr_en_mult_B_out_fifo = ~empty_fir_A_out_fifo & ~empty_fir_C_out_fifo & ~full_mult_B_out_fifo;
+
+multiply_n mult_B(
+    .x_in(dout_fir_A_out_fifo),
+    .y_in(dout_fir_C_out_fifo),
+    .dout(din_mult_B_out_fifo)
+);
 
 fifo #(
     .FIFO_BUFFER_SIZE(),
