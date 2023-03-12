@@ -16,32 +16,6 @@ module div #(
 typedef enum logic [2:0] { INIT, IDLE, B_EQ_1, LOOP, EPILOGUE, DONE } state_t;
 state_t state, state_c;
 
-virtual class functionClass #(parameter int DATA_WIDTH);
-
-    static function int get_msb_pos;    
-        input logic [DATA_WIDTH-1:0] vec;
-        begin
-            if (DATA_WIDTH > 1) begin
-                logic [(DATA_WIDTH/2)-1:0] lhs = vec[DATA_WIDTH-1:DATA_WIDTH/2];
-                logic [(DATA_WIDTH/2)-1:0] rhs = vec[(DATA_WIDTH/2)-1:0];
-
-                if (lhs > 0) begin
-                    return functionClass#(DATA_WIDTH/2)::get_msb_pos(lhs) + (DATA_WIDTH/2);
-                end else if (rhs > 0) begin
-                    return functionClass#(DATA_WIDTH/2)::get_msb_pos(rhs);
-                end else begin
-                    return 0;
-                end
-            end else begin
-                if ($unsigned(vec) == DATA_WIDTH'b1) begin
-                    return 1;
-                end else begin
-                    return 0;
-                end
-            end
-        end
-    endfunction
-endclass
     
 logic [DATA_WIDTH-1:0] a, a_c;
 logic [DATA_WIDTH-1:0] b, b_c;
@@ -87,9 +61,9 @@ always_comb begin
             q_c = '0;
             p = 0;
 
-            if (divisor == DATA_WIDTH'h1) begin
+            if (divisor == 1) begin
                 state_c = B_EQ_1;
-            end else if (divisor == DATA_WIDTH'h0) begin
+            end else if (divisor == 0) begin
                 overflow = 1'b1;
                 state_c = B_EQ_1;
             end else begin
@@ -140,5 +114,32 @@ always_comb begin
         end
     endcase
 end
+
+virtual class functionClass #(parameter int DATA_WIDTH);
+
+    static function int get_msb_pos;    
+        input logic [DATA_WIDTH-1:0] vec;
+        begin
+            if (DATA_WIDTH > 1) begin
+                logic [(DATA_WIDTH/2)-1:0] lhs = vec[DATA_WIDTH-1:DATA_WIDTH/2];
+                logic [(DATA_WIDTH/2)-1:0] rhs = vec[(DATA_WIDTH/2)-1:0];
+
+                if (lhs > 0) begin
+                    return functionClass#(DATA_WIDTH/2)::get_msb_pos(lhs) + (DATA_WIDTH/2);
+                end else if (rhs > 0) begin
+                    return functionClass#(DATA_WIDTH/2)::get_msb_pos(rhs);
+                end else begin
+                    return 0;
+                end
+            end else begin
+                if ($unsigned(vec) == (DATA_WIDTH)'b1) begin
+                    return 1;
+                end else begin
+                    return 0;
+                end
+            end
+        end
+    endfunction
+endclass
 
 endmodule
