@@ -1,6 +1,12 @@
 module fm_radio_top (
     input   logic           clk,
     input   logic           reset,
+    input   logic           in_wr_en,
+    input   logic           out_rd_en,
+    output  logic           q_in_full,
+    output  logic           i_in_full,
+    output  logic           left_out_empty,
+    output  logic           right_out_empty,
     input   logic [31:0]    q,
     input   logic [31:0]    i,
     output  logic [31:0]    left_audio,
@@ -140,8 +146,39 @@ logic empty_gain_right_out_fifo;
 //// BEGIN COMBINATIONAL ASSIGNMENTS ////
 assign din_q_in_fifo = q;
 assign din_i_in_fifo = i;
+assign q_in_full = full_q_in_fifo;
+assign i_in_full = full_i_in_fifo;
 assign left_audio = dout_gain_left_out_fifo;
 assign right_audio = dout_gain_right_out_fifo;
+assign left_out_empty = empty_gain_left_out_fifo;
+assign right_out_empty = empty_gain_right_out_fifo;
+
+/* connecting fifos bc there are two input fifos that should be written to simultaneously*/
+assign in_wr_en = wr_en_q_in_fifo;
+assign wr_en_q_in_fifo = wr_en_i_in_fifo;
+
+/* connecting fifos bc multiply A is combinational */
+assign rd_en_fir_B_out_fifo = wr_en_mult_A_out_fifo;
+assign wr_en_mult_A_out_fifo = ~empty_fir_B_out_fifo & ~full_mult_A_out_fifo;
+
+/* connecting fifos bc multiply B is combinational
+   two inputs so we want to read at same time */
+assign rd_en_fir_A_out_fifo = wr_en_mult_B_out_fifo;
+assign rd_en_fir_C_out_fifo = rd_en_fir_A_out_fifo;
+assign wr_en_mult_B_out_fifo = ~empty_fir_A_out_fifo & ~empty_fir__out_fifo & ~full_mult_B_out_fifo;
+
+/* connecting fifos bc gain LEFT is combinational */
+assign rd_en_deemph_add_out_fifo = wr_en_gain_left_out_fifo;
+assign wr_en_gain_left_out_fifo = ~empty_deemph_add_out_fifo & ~full_gain_left_out_fifo;
+
+/* connecting fifos bc gain RIGHT is combinational */
+assign rd_en_deemph_sub_out_fifo = wr_en_gain_right_out_fifo;
+assign wr_en_gain_right_out_fifo = ~empty_deemph_sub_out_fifo & ~full_gain_right_out_fifo;
+
+/* connecting fifos bc 2 output fifos that should be read simultaneously */
+assign out_rd_en = rd_en_gain_right_out_fifo;
+assign rd_en_gain_left_out_fifo = rd_en_gain_right_out_fifo;
+
 
 //// BEGIN INSTANCES ////
 
@@ -258,9 +295,7 @@ fifo #(
     .empty(empty_fir_B_out_fifo)
 );
 
-// connecting fifos bc multiply is combinational
-assign rd_en_fir_B_out_fifo = wr_en_mult_A_out_fifo;
-assign wr_en_mult_A_out_fifo = ~empty_fir_B_out_fifo & ~full_mult_A_out_fifo;
+
 
 multiply_n mult_A(
     .x_in(dout_fir_B_out_fifo),
@@ -299,12 +334,6 @@ fifo #(
     .dout(dout_fir_C_out_fifo),
     .empty(empty_fir_C_out_fifo)
 );
-
-// connecting fifos bc multiply is combinational
-// two inputs so we want to read at same time
-assign rd_en_fir_A_out_fifo = wr_en_mult_B_out_fifo;
-assign rd_en_fir_C_out_fifo = rd_en_fir_A_out_fifo;
-assign wr_en_mult_B_out_fifo = ~empty_fir_A_out_fifo & ~empty_fir_C_out_fifo & ~full_mult_B_out_fifo;
 
 multiply_n mult_B(
     .x_in(dout_fir_A_out_fifo),
@@ -482,10 +511,6 @@ fifo #(
     .empty(empty_deemph_sub_out_fifo)
 );
 
-// connecting fifos bc gain is combinational
-assign rd_en_deemph_add_out_fifo = wr_en_gain_left_out_fifo;
-assign wr_en_gain_left_out_fifo = ~empty_deemph_add_out_fifo & ~full_gain_left_out_fifo;
-
 gain_n #(
     .GAIN(1)
 )gain_left(
@@ -507,10 +532,6 @@ fifo #(
     .dout(dout_gain_left_out_fifo),
     .empty(empty_gain_left_out_fifo)
 );
-
-// connecting fifos bc gain is combinational
-assign rd_en_deemph_sub_out_fifo = wr_en_gain_right_out_fifo;
-assign wr_en_gain_right_out_fifo = ~empty_deemph_sub_out_fifo & ~full_gain_right_out_fifo;
 
 gain_n #(
     .GAIN(1)
