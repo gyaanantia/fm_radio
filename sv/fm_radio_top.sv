@@ -212,7 +212,7 @@ fifo #(
     .empty(empty_i_in_fifo)
 );
 
-fir_complex fir_complex_inst ();
+fir_cmplx fir_cmplx_inst ();
 
 fifo #(
     .FIFO_BUFFER_SIZE(),
