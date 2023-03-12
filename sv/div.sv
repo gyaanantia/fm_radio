@@ -30,7 +30,7 @@ module div #(
     parameter DIVISOR_WIDTH = 32
 )
 (
-    input  logic                        clock,
+    input  logic                        clk,
     input  logic                        reset,
     input  logic                        valid_in,
     input  logic [DIVIDEND_WIDTH-1:0]   dividend,
@@ -55,7 +55,7 @@ integer one;
 integer a_minus_b;
 integer remainder_condition;
 
-always_ff @( posedge clock or posedge reset ) begin
+always_ff @( posedge clk or posedge reset ) begin
     if (reset == 1'b1) begin
         state <= IDLE;
         a <= '0;
@@ -73,6 +73,7 @@ end
 always_comb begin
     b_c = b;
     q_c = q;
+    valid_out = '0;
     case(state)
         IDLE: begin
             if (valid_in == 1'b1) begin
