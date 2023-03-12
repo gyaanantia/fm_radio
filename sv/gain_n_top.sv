@@ -37,10 +37,10 @@ fifo #(
 );
 
 gain_n #(
-    .DATA_WIDTH(32)
+    .DATA_WIDTH(32),
+    .GAIN(1)
 ) gain_inst(
-    .din(din),
-    .gain(in_dout),
+    .din(in_dout),
     .dout(out_din)
 );
 
