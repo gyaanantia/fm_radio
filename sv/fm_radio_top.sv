@@ -426,14 +426,8 @@ fifo #(
     .FIFO_BUFFER_SIZE(),
     .FIFO_DATA_WIDTH(FIFO_DATA_WIDTH)
 ) deemph_add_out_fifo(
-    .reset(reset),    .clock(clock),
-    .reset(reset),
-    .din(dout_add_out_fifo),
-    .dout(din_deemph_add_out_fifo),
-    .out_wr_en(wr_en_deemph_add_out_fifo),
-    .in_empty(empty_add_out_fifo),
-    .out_full(full_deemph_add_out_fifo),
-    .in_rd_en(rd_en_add_out_fifo)
+    .reset(reset),    
+    .clock(clock),
     .din(din_deemph_add_out_fifo),
     .full(full_deemph_add_out_fifo),
     .rd_clk(clk),
@@ -470,7 +464,16 @@ fifo #(
     .empty(empty_deemph_sub_out_fifo)
 );
 
-gain_n gain_left();
+// connecting fifos bc gain is combinational
+assign rd_en_deemph_add_out_fifo = wr_en_gain_left_out_fifo;
+assign wr_en_gain_left_out_fifo = ~empty_deemph_add_out_fifo & ~full_gain_left_out_fifo;
+
+gain_n #(
+    .GAIN(1)
+)gain_left(
+    .din(dout_deemph_add_out_fifo),
+    .dout(din_gain_left_out_fifo)
+);
 
 fifo #(
     .FIFO_BUFFER_SIZE(),
@@ -487,7 +490,16 @@ fifo #(
     .empty(empty_gain_left_out_fifo)
 );
 
-gain_n gain_right();
+// connecting fifos bc gain is combinational
+assign rd_en_deemph_sub_out_fifo = wr_en_gain_right_out_fifo;
+assign wr_en_gain_right_out_fifo = ~empty_deemph_sub_out_fifo & ~full_gain_right_out_fifo;
+
+gain_n #(
+    .GAIN(1)
+)gain_right(
+    .din(dout_deemph_sub_out_fifo),
+    .dout(din_gain_right_out_fifo)
+);
 
 fifo #(
     .FIFO_BUFFER_SIZE(),
