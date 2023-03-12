@@ -43,6 +43,7 @@ always_ff @( posedge clock or posedge reset ) begin
         y_out <= '0;
         count <= '0;
         state <= s0;
+        sum <= '0;
         y_wr_en <= 1'b0;
     end else begin
         x <= x_c;
@@ -83,8 +84,8 @@ always_comb begin
             temp_sum = COEFF[TAPS - count - 1] * x[count];
             temp_deq = DEQUANTIZE(temp_sum);
             sum_c = sum + temp_deq;
-            count_c = (count + 1) % 32;
-            if (count == 31) begin 
+            count_c = (count + 1) % TAPS;
+            if (count == TAPS - 1) begin 
 
                 state_c = s2;
             end else begin
