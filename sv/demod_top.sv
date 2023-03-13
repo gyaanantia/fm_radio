@@ -15,7 +15,7 @@ logic real_fifo_rd_en, real_fifo_full, real_fifo_empty;
 logic imag_fifo_rd_en, imag_fifo_full, imag_fifo_empty;
 
 assign in_fifos_full = real_fifo_full || imag_fifo_full;
-assign in_fifo_rd_en = ~(real_fifo_empty || imag_fifo_empty);
+assign input_fifos_empty = real_fifo_empty || imag_fifo_empty;
 
 logic [31:0] real_fifo_dout, imag_fifo_dout, demod_out;
 
@@ -55,7 +55,8 @@ fifo #(
 demodulate demod_inst (
     .clk(clk),
     .reset(reset),
-    .rd_en_in(in_fifo_rd_en),
+    .input_fifos_empty(input_fifos_empty),
+    .input_rd_en(in_fifo_rd_en),
     .real_in(real_fifo_dout),
     .imag_in(imag_fifo_dout),
     .demod_out(demod_out),

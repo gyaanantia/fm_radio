@@ -15,7 +15,8 @@ logic [31:0] imag_in;
 logic [31:0] data_out;
 
 logic in_fifo_wr_en, out_fifo_rd_en, in_fifos_full, out_fifo_empty;
-logic out_rd_done, in_write_done;
+logic out_rd_done = '0;
+logic in_write_done = '0;
 
 integer out_errors = 0;
 
@@ -32,9 +33,9 @@ demod_top dut (
 );
 
 always begin
-    clk = 1'b1;
-    #(CLOCK_PERIOD/2);
     clk = 1'b0;
+    #(CLOCK_PERIOD/2);
+    clk = 1'b1;
     #(CLOCK_PERIOD/2);
 end
 
@@ -96,6 +97,7 @@ initial begin : read_process
 
     @(negedge clk);
     in_fifo_wr_en = 1'b0;
+    $display("CLOSING IN FILE");
     $fclose(in_file);
     in_write_done = 1'b1;
 end
@@ -129,6 +131,7 @@ initial begin : comp_process
 
     @(negedge clk);
     out_fifo_rd_en = 1'b0;
+    $display("CLOSING COMP FILE");
     $fclose(cmp_file);
     out_rd_done = 1'b1;
 end
