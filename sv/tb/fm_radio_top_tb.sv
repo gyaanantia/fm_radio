@@ -1,6 +1,6 @@
 `timescale 1ns/1ns
 
-module fir_cmplx_tb;
+module fm_radio_top_tb;
 
 /* files */
 localparam string IN_FILE_NAME = "../read_iq.txt";
@@ -8,7 +8,8 @@ localparam string CMP_RIGHT_FILE_NAME = "../right_volume.txt";
 localparam string CMP_LEFT_FILE_NAME = "../left_volume.txt";
 
 localparam DATA_WIDTH = 64;
-localparam DATA_SIZE = 100;
+localparam DATA_SIZE = 366149;
+// localparam DATA_SIZE = 1600;
 localparam CLOCK_PERIOD = 10;
 
 /* signals for tb */
@@ -22,10 +23,10 @@ integer out_errors = 0;
 /* signals interfacing fir */
 logic clock, reset;
 logic [DATA_WIDTH-1:0] din;
-logic [DATA_WIDTH/2-1:0] dout_right, dout_left;
+logic [(DATA_WIDTH/2)-1:0] dout_right, dout_left;
 
 /* fir instance */
-fir_cmplx_top dut (
+fm_radio_top dut (
     .clk(clock),
     .reset(reset),
     .i(din[63:32]),
@@ -126,7 +127,8 @@ initial begin : comp_process
     out_rd_en = 1'b0;
 
     i = 0;
-    while (i < DATA_SIZE) begin
+    while (i < 32768) begin
+    // while (i < (DATA_SIZE/10)) begin
         @(negedge clock);
         out_rd_en = 1'b0;
             if (left_out_empty == 1'b0 & right_out_empty == 1'b0) begin

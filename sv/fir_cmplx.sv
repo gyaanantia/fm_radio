@@ -38,7 +38,7 @@ module fir_cmplx# (
     input  logic        y_imag_full
 );
 
-typedef enum logic[2:0] {s0, s1, s2} state_t;
+typedef enum logic[2:0] {s0, s1, s2, s3} state_t;
 state_t state, state_c;
 logic [0:19][31:0] x_real, x_real_c;
 logic [0:19][31:0] x_imag, x_imag_c;
@@ -61,41 +61,43 @@ always_ff @( posedge clock or posedge reset ) begin
     if (reset == 1'b1) begin
         x_real <= '0;
         x_imag <= '0;
-        y_out_real <= '0;
-        y_out_imag <= '0;
+        // y_out_real <= '0;
+        // y_out_imag <= '0;
         count <= '0;
         state <= s0;
         sum_real <= '0;
         sum_imag <= '0;
-        y_real_wr_en <= 1'b0;
-        y_imag_wr_en <= 1'b0;
+        // y_real_wr_en <= 1'b0;
+        // y_imag_wr_en <= 1'b0;
     end else begin
         x_real <= x_real_c;
         x_imag <= x_imag_c;
-        y_out_real <= y_out_real_c;
-        y_out_imag <= y_out_imag_c;
+        // y_out_real <= y_out_real_c;
+        // y_out_imag <= y_out_imag_c;
         count <= count_c;
         state <= state_c;
         sum_real <= sum_real_c;
         sum_imag <= sum_imag_c;
-        y_real_wr_en <= y_real_wr_en_c;
-        y_imag_wr_en <= y_imag_wr_en_c;
+        // y_real_wr_en <= y_real_wr_en_c;
+        // y_imag_wr_en <= y_imag_wr_en_c;
     end
 end
 
 always_comb begin
     x_real_c = x_real;
     x_imag_c = x_imag;
-    sum_real_c = '0;
-    sum_imag_c = '0;
+    sum_real_c = sum_real;
+    sum_imag_c = sum_imag;
     in_rd_en = 1'b0;
-    y_real_wr_en_c = 1'b0;
-    y_imag_wr_en_c = 1'b0;
-    y_out_real_c = '0;
-    y_out_imag_c = '0;
+    y_real_wr_en = 1'b0;
+    y_imag_wr_en = 1'b0;
+    y_out_real = '0;
+    y_out_imag = '0;
 
     case (state)
         s0: begin
+            sum_real_c = '0;
+            sum_imag_c = '0;
             if (in_empty == 1'b0) begin
                 in_rd_en = 1'b1;
                 x_real_c[1:19] = x_real[0:18];
@@ -129,10 +131,10 @@ always_comb begin
 
         s2: begin
             if (out_full == 1'b0) begin
-                y_real_wr_en_c = 1'b1;
-                y_imag_wr_en_c = 1'b1;
-                y_out_real_c = sum_real;
-                y_out_imag_c = sum_imag;
+                y_real_wr_en = 1'b1;
+                y_imag_wr_en = 1'b1;
+                y_out_real = sum_real;
+                y_out_imag = sum_imag;
                 state_c = s0;
             end else begin
                 state_c = s2;

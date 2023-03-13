@@ -60,7 +60,8 @@ demodulate demod_inst (
     .real_in(real_fifo_dout),
     .imag_in(imag_fifo_dout),
     .demod_out(demod_out),
-    .wr_en_out(out_fifo_wr_en)
+    .wr_en_out(out_fifo_wr_en),
+    .out_fifo_full(out_fifo_full)
 );
 
 fifo #(

@@ -1,10 +1,10 @@
 module iir_fast #(
-    parameter int DATA_WIDTH = 32
+    parameter int DEEMPH_DATA_WIDTH = 32
 ) (
     input logic clock,
     input logic reset,
-    input logic [DATA_WIDTH-1:0] din,
-    output logic [DATA_WIDTH-1:0] dout,
+    input logic [DEEMPH_DATA_WIDTH-1:0] din,
+    output logic [DEEMPH_DATA_WIDTH-1:0] dout,
     output logic out_wr_en,
     input logic in_empty,
     input logic out_full,
@@ -27,11 +27,11 @@ localparam int a0 = -666;//QUANTIZE_F((W_PP - 1.0)/(W_PP + 1.0));
 typedef enum logic [2:0] {init, s0, s1, s2, s3, s4, s5} state_t;
 state_t state, state_c;
 
-logic [0:1][DATA_WIDTH-1:0]shift_reg_x, shift_reg_y, shift_reg_x_c, shift_reg_y_c;
-logic [DATA_WIDTH-1:0] x_sum, x_sum_c;
-logic [DATA_WIDTH-1:0] x_mult0, x_mult1, x_mult0_c, x_mult1_c;
-logic [DATA_WIDTH-1:0] y_mult0, y_mult1, y_mult0_c, y_mult1_c;
-logic [DATA_WIDTH-1:0] y_sum, y_sum_c;
+logic [0:1][DEEMPH_DATA_WIDTH-1:0]shift_reg_x, shift_reg_y, shift_reg_x_c, shift_reg_y_c;
+logic [DEEMPH_DATA_WIDTH-1:0] x_sum, x_sum_c;
+logic [DEEMPH_DATA_WIDTH-1:0] x_mult0, x_mult1, x_mult0_c, x_mult1_c;
+logic [DEEMPH_DATA_WIDTH-1:0] y_mult0, y_mult1, y_mult0_c, y_mult1_c;
+logic [DEEMPH_DATA_WIDTH-1:0] y_sum, y_sum_c;
 
 
 always_ff @(posedge clock or posedge clock) begin

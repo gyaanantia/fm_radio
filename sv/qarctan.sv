@@ -68,7 +68,7 @@ always_comb begin
     // output the current readiness of the divider
     qarctan_done = div_valid_out;
     data_out = '0;
-    divider_ready = (state_c == READY);
+    divider_ready = (state == READY);
 
     // keep signals in the flops
     dividend_c = dividend;

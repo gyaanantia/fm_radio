@@ -8,7 +8,7 @@ logic clk;
 logic [31:0] pi, max_dev, w_pp;
 
 initial begin
-    $display("%08x\n", PI);
+    $display("%08x\n", QUANTIZE_F(2.512) - 32'h00000001);
     $display("%08x\n", MAX_DEV);
     $display("%08x\n", TAU);
     $display("%08x\n", W_PP);

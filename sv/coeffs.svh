@@ -3,7 +3,7 @@ package coeffs;
 
 import macros::*;
 
-logic [31:0] ONE_FLOAT = 32'h3f800000;
+// logic [31:0] ONE_FLOAT = 32'h3f800000;
 int IIR_COEFF_TAPS = 2;
 // logic [0:1][31:0] IIR_Y_COEFFS = '{QUANTIZE_F(0.0), QUANTIZE_F((W_PP - ONE_FLOAT) / (W_PP + ONE_FLOAT))};
 // logic [0:1][31:0] IIR_X_COEFFS = '{QUANTIZE_F(W_PP / (ONE_FLOAT + W_PP)), QUANTIZE_F(W_PP / (ONE_FLOAT + W_PP))};

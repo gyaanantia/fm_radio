@@ -67,14 +67,14 @@ add wave -noupdate -group fm_radio_top_tb/dut/fir_E -radix hexadecimal /fm_radio
 add wave -noupdate -group fm_radio_top_tb/dut/fir_E_out_fifo
 add wave -noupdate -group fm_radio_top_tb/dut/fir_E_out_fifo -radix hexadecimal /fm_radio_top_tb/dut/fir_E_out_fifo/*
 
-add wave -noupdate -group fm_radio_top_tb/dut/add_n
-add wave -noupdate -group fm_radio_top_tb/dut/add_n -radix hexadecimal /fm_radio_top_tb/dut/add_n/*
+#add wave -noupdate -group fm_radio_top_tb/dut/add_n
+#add wave -noupdate -group fm_radio_top_tb/dut/add_n -radix hexadecimal /fm_radio_top_tb/dut/add_n/*
 
 add wave -noupdate -group fm_radio_top_tb/dut/add_out_fifo
 add wave -noupdate -group fm_radio_top_tb/dut/add_out_fifo -radix hexadecimal /fm_radio_top_tb/dut/add_out_fifo/*
 
-add wave -noupdate -group fm_radio_top_tb/dut/sub_n
-add wave -noupdate -group fm_radio_top_tb/dut/sub_n -radix hexadecimal /fm_radio_top_tb/dut/sub_n/*
+#add wave -noupdate -group fm_radio_top_tb/dut/sub_n
+#add wave -noupdate -group fm_radio_top_tb/dut/sub_n -radix hexadecimal /fm_radio_top_tb/dut/sub_n/*
 
 add wave -noupdate -group fm_radio_top_tb/dut/sub_out_fifo
 add wave -noupdate -group fm_radio_top_tb/dut/sub_out_fifo -radix hexadecimal /fm_radio_top_tb/dut/sub_out_fifo/*

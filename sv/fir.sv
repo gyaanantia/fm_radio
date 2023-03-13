@@ -1,8 +1,3 @@
-`include "coeffs.svh";
-
-import macros::*;
-import coeffs::*;
-
 module fir #(
     parameter DATA_WIDTH = 32,
     parameter [0:31][31:0] COEFF =
@@ -27,6 +22,9 @@ module fir #(
     input  logic                    y_out_full,
     output logic                    y_wr_en
 );
+
+import macros::*;
+import coeffs::*;
 
 typedef enum logic[2:0] {s0, s1, s2} state_t;
 state_t state, state_c;
