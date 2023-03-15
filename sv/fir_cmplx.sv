@@ -1,4 +1,4 @@
-`include "coeffs.svh";
+// `include "coeffs.svh";
 
 import macros::*;
 import coeffs::*;
@@ -38,7 +38,7 @@ module fir_cmplx# (
     input  logic        y_imag_full
 );
 
-typedef enum logic[2:0] {s0, s1, s2, s3} state_t;
+typedef enum logic[2:0] {s0, s1, s2, s3, s4} state_t;
 state_t state, state_c;
 logic [0:19][31:0] x_real, x_real_c;
 logic [0:19][31:0] x_imag, x_imag_c;
@@ -51,6 +51,14 @@ logic y_real_wr_en_c, y_imag_wr_en_c;
 logic in_empty;
 logic in_rd_en;
 logic out_full;
+
+logic [31:0] h_real_x_real, h_real_x_real_c;
+logic [31:0] h_imag_x_imag, h_imag_x_imag_c;
+logic [31:0] h_real_x_imag, h_real_x_imag_c;
+logic [31:0] h_imag_x_real, h_imag_x_real_c;
+logic [31:0] temp_real, temp_real_c;
+logic [31:0] temp_imag, temp_imag_c;
+
 
 assign in_empty = i_empty || q_empty;
 assign i_rd_en = in_rd_en;
@@ -69,6 +77,10 @@ always_ff @( posedge clock or posedge reset ) begin
         sum_imag <= '0;
         // y_real_wr_en <= 1'b0;
         // y_imag_wr_en <= 1'b0;
+        h_real_x_real <= '0;
+        h_imag_x_imag <= '0;
+        h_real_x_imag <= '0;
+        h_imag_x_real <= '0;
     end else begin
         x_real <= x_real_c;
         x_imag <= x_imag_c;
@@ -80,6 +92,11 @@ always_ff @( posedge clock or posedge reset ) begin
         sum_imag <= sum_imag_c;
         // y_real_wr_en <= y_real_wr_en_c;
         // y_imag_wr_en <= y_imag_wr_en_c;
+        h_real_x_real <= h_real_x_real_c;
+        h_imag_x_imag <= h_imag_x_imag_c;
+        h_real_x_imag <= h_real_x_imag_c;
+        h_imag_x_real <= h_imag_x_real_c;
+
     end
 end
 
@@ -93,11 +110,21 @@ always_comb begin
     y_imag_wr_en = 1'b0;
     y_out_real = '0;
     y_out_imag = '0;
+    h_real_x_real_c = h_real_x_real;
+    h_imag_x_imag_c = h_imag_x_imag;
+    h_real_x_imag_c = h_real_x_imag;
+    h_imag_x_real_c = h_imag_x_real;
+    temp_real_c = temp_real;
+    temp_imag_c = temp_imag;
 
     case (state)
         s0: begin
             sum_real_c = '0;
             sum_imag_c = '0;
+            h_real_x_real_c = '0;
+            h_imag_x_imag_c = '0;
+            h_real_x_imag_c = '0;
+            h_imag_x_real_c = '0;
             if (in_empty == 1'b0) begin
                 in_rd_en = 1'b1;
                 x_real_c[1:19] = x_real[0:18];
@@ -118,18 +145,37 @@ always_comb begin
         end
 
         s1: begin
-            sum_real_c = sum_real + DEQUANTIZE((H_REAL[count] * x_real[count]) - (H_IMAG[count] * x_imag));
-            sum_imag_c = sum_imag + DEQUANTIZE((H_REAL[count] * x_imag[count]) - (H_IMAG[count] * x_real));
+            h_real_x_real_c = H_REAL[count] * x_real[count];
+            h_imag_x_imag_c = H_IMAG[count] * x_imag[count];
+            
+            h_real_x_imag_c = H_REAL[count] * x_imag[count];
+            h_imag_x_real_c = H_IMAG[count] * x_real[count];
+
+            count_c = count;
+            state_c = s2;
+        end
+
+        s2: begin
+            temp_real_c = h_real_x_real - h_imag_x_imag;
+            temp_imag_c = h_real_x_imag - h_imag_x_real;
+
+            count_c = count;
+            state_c = s3;
+        end
+
+        s3: begin
+            sum_real_c = sum_real + DEQUANTIZE(temp_real);
+            sum_imag_c = sum_imag + DEQUANTIZE(temp_imag);
 
             count_c = (count + 1) % TAPS;
             if (count == TAPS - 1) begin
-                state_c = s2;
+                state_c = s4;
             end else begin
                 state_c = s1;
             end
         end
 
-        s2: begin
+        s4: begin
             if (out_full == 1'b0) begin
                 y_real_wr_en = 1'b1;
                 y_imag_wr_en = 1'b1;
@@ -137,7 +183,7 @@ always_comb begin
                 y_out_imag = sum_imag;
                 state_c = s0;
             end else begin
-                state_c = s2;
+                state_c = s4;
             end
         end
 

@@ -16,14 +16,14 @@ logic [31:0] QUANT_VAL = (1 << BITS);
 function logic[31:0] QUANTIZE_I; 
 input logic[31:0] i;
     begin
-        return int'($signed(i) * $signed(QUANT_VAL));
+        return int'($signed(i) << 10);
     end
 endfunction
 
 function logic[31:0] DEQUANTIZE; 
 input logic[31:0] i;
     begin
-        return int'($signed(i) / $signed(QUANT_VAL));
+        return int'($signed(i) >>> 10);
     end
 endfunction
 

@@ -1,4 +1,4 @@
-`include "coeffs.svh"
+// `include "coeffs.svh"
 module demodulate (
     input   logic           clk,
     input   logic           reset,
@@ -11,7 +11,7 @@ module demodulate (
     input   logic           out_fifo_full
 );
 
-import macros::*;
+// import macros::*;
 
 const logic [31:0] gain = 32'h000002f6;
 

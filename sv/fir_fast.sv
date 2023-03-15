@@ -31,7 +31,7 @@ module fir_fast #(
 function logic[31:0] DEQUANTIZE; 
 input logic[31:0] i;
     begin
-        return int'($signed(i) / $signed(1 << 10));
+        return int'($signed(i) >>> 10);
     end
 endfunction
 
