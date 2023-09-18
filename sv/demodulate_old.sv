@@ -10,6 +10,7 @@ module demodulate_old (
     input   logic           out_fifo_full
 );
 
+    
 import macros::*;
 
 const logic [31:0] gain = 32'h000002f6;
