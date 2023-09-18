@@ -125,6 +125,7 @@ always_comb begin
     endcase
 end
 
+    
 always_comb begin
     real_prev_times_curr = $signed(real_prev) * $signed(real_curr);
     imag_prev_times_curr = $signed(real_prev) * $signed(imag_curr);
