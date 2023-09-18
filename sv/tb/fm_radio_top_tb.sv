@@ -12,6 +12,7 @@ localparam DATA_SIZE = 366149;
 // localparam DATA_SIZE = 1600;
 localparam CLOCK_PERIOD = 10;
 
+    
 /* signals for tb */
 logic start, out_read_done, in_write_done;
 logic in_wr_en;
