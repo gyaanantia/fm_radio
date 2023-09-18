@@ -11,6 +11,7 @@ module qarctan
     output  logic           qarctan_done   
 );
 
+    
 const logic [31:0] QUAD_ONE = 32'h00000324;
 const logic [31:0] QUAD_THREE = 32'h0000096c;
 
