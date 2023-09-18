@@ -23,6 +23,7 @@ module fir #(
     output logic                    y_wr_en
 );
 
+	
 import macros::*;
 import coeffs::*;
 
