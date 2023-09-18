@@ -38,6 +38,7 @@ module fir_cmplx# (
     input  logic        y_imag_full
 );
 
+	
 typedef enum logic[2:0] {s0, s1, s2, s3} state_t;
 state_t state, state_c;
 logic [0:19][31:0] x_real, x_real_c;
