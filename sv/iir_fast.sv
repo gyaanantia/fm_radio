@@ -33,6 +33,7 @@ logic [DEEMPH_DATA_WIDTH-1:0] x_mult0, x_mult1, x_mult0_c, x_mult1_c;
 logic [DEEMPH_DATA_WIDTH-1:0] y_mult0, y_mult1, y_mult0_c, y_mult1_c;
 logic [DEEMPH_DATA_WIDTH-1:0] y_sum, y_sum_c;
 
+    
 
 always_ff @(posedge clock or posedge clock) begin
     if (reset) begin
