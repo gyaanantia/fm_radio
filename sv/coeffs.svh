@@ -205,4 +205,5 @@ logic [0:1023][31:0] sin_lut =
 	(32'hFFFFFFCE), (32'hFFFFFFD5), (32'hFFFFFFDB), (32'hFFFFFFE1), (32'hFFFFFFE7), (32'hFFFFFFEE), (32'hFFFFFFF4), (32'hFFFFFFFA) 
 };
 
+
 endpackage
